@@ -60,6 +60,10 @@ const TypingSolo = () => {
 
   const handleClick = () => inputRef.current?.focus()
 
+  // 새로고침해서 처음부터 다시 치게 해요. window.location.reload()가 브라우저의
+  // 새로고침(F5)을 코드로 실행해주는 함수예요.
+  const handleRestart = () => window.location.reload()
+
   // 방향키 등으로 커서를 문장 중간으로 옮기지 못하게 막아요.
   // 타자 게임에서는 입력 위치가 항상 맨 끝이어야 하는데, 방향키를 누르면
   // textarea 안의 진짜 커서(caret)가 중간으로 이동해서 화면 표시와 어긋나 버려요.
@@ -217,6 +221,7 @@ const TypingSolo = () => {
       <p style={{ marginTop: "16px", color: "var(--text)" }}>
         {isFinished ? "다 쳤어요! 🎉" : `${inputText.length} / ${PRACTICE_TEXT.length}`}
       </p>
+      <p>{isFinished ? "다시하기" : " "}</p>
     </div>
   )
 }
