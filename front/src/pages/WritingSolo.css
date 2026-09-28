@@ -1,0 +1,121 @@
+/* ws = WritingSolo 줄임말 */
+
+/* ---------- 시작 화면: 두 가지 선택지 카드 ---------- */
+.ws-start {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.ws-option {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 36px 28px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.ws-option:hover {
+  border-color: var(--accent-border);
+  transform: translateY(-2px);
+}
+
+.ws-option strong {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.ws-option span {
+  font-size: 15px;
+  color: var(--text);
+}
+
+/* ---------- 소재 뽑기 ---------- */
+.ws-pick {
+  max-width: 640px;
+}
+
+.ws-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+/* ---------- 글쓰기 ---------- */
+.ws-write {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ws-title {
+  width: 100%;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  outline: none;
+  background: transparent;
+  color: var(--text-h);
+  font: inherit;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.ws-title:focus {
+  border-bottom-color: var(--accent);
+}
+
+.ws-body {
+  width: 100%;
+  min-height: 50vh;
+  /* 글이 길어지면 textarea가 내용에 맞춰 늘어나요 (최신 크롬 지원, 미지원 브라우저는 스크롤) */
+  field-sizing: content;
+  padding: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: var(--text-h);
+  font: inherit;
+  font-size: 18px;
+  line-height: 1.9;
+}
+
+.ws-footer {
+  position: sticky; /* 글이 길어져도 저장 버튼이 항상 화면 아래에 보이게 */
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.ws-count {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.ws-error {
+  font-size: 14px;
+  color: #e5484d;
+}
+
+@media (max-width: 600px) {
+  .ws-start {
+    grid-template-columns: 1fr;
+  }
+  .ws-footer {
+    flex-wrap: wrap;
+  }
+}

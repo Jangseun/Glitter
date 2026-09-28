@@ -115,3 +115,90 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* =========================================================
+   여러 페이지에서 같이 쓰는 공통 스타일
+   ========================================================= */
+
+/* 페이지 기본 틀. #root가 text-align: center라서 본문 페이지는 왼쪽 정렬로 되돌려요. */
+.page {
+  padding: 32px 48px 64px;
+  text-align: left;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.page-back {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.page-back:hover {
+  color: var(--text-h);
+}
+
+/* 기본 h1(56px)은 본문 페이지에선 너무 커서 작게 덮어써요. */
+.page-title {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+/* 빈 목록 / 불러오는 중 / 못 찾음 안내 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 80px 0;
+  color: var(--text);
+  text-align: center;
+}
+
+/* 버튼. <button>과 <Link>(a 태그) 둘 다에 쓸 수 있게 만들었어요. */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-h);
+  font: inherit;
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: var(--accent-border);
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btn kbd {
+  margin-left: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 24px 20px 48px;
+  }
+}
