@@ -36,3 +36,8 @@ class Work(Base):
     # timezone=True: 시간대 정보까지 저장 → 프론트에서 한국 시간으로 정확히 변환돼요.
     # index=True: 최신순 정렬(ORDER BY created_at)을 자주 하니까 인덱스를 걸어둬요.
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+    # 마지막으로 수정한 시각. 한 번도 수정 안 했으면 None(NULL)
+    # onupdate=func.now(): 이 행을 UPDATE할 때마다 SQLAlchemy가 자동으로 "지금 시각"을 같이 넣어줘요.
+    # (처음 INSERT할 때는 안 들어가서, None이면 "수정된 적 없음"으로 구분할 수 있어요)
+    updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), onupdate=func.now(), nullable=True)

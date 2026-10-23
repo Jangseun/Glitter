@@ -11,7 +11,8 @@
 //   mode:      "solo" | "relay",      // 혼자 쓰기 / 공동 이어쓰기
 //   authors:   ["닉네임", ...],
 //   prompt:    { genre: "추리", ... } | null,
-//   createdAt: "2026-09-28T12:34:56+00:00"
+//   createdAt: "2026-09-28T12:34:56+00:00",
+//   updatedAt: "2026-09-29T08:00:00+00:00" | null   // 수정한 적 없으면 null
 // }
 
 import { request } from "./http"
@@ -35,6 +36,14 @@ export const createWork = ({ title, body, mode = "solo", authors = [], prompt = 
   request("/api/works", {
     method: "POST",
     body: { title, body, mode, authors, prompt },
+  })
+
+// 작품 수정. 바꿀 필드만 넘기면 돼요. 예) updateWork(id, { title: "새 제목" })
+// 수정된 작품(updatedAt 갱신됨)을 돌려줘요.
+export const updateWork = (id, { title, body }) =>
+  request(`/api/works/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: { title, body },
   })
 
 // 작품 삭제

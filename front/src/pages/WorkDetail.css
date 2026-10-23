@@ -32,7 +32,40 @@
 
 .wd-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 12px;
   padding-top: 24px;
   border-top: 1px solid var(--border);
+}
+
+/* ---------- 수정 모드 ----------
+   보기 모드와 글자 크기/줄 간격을 똑같이 맞춰서(.wd-title, .wd-body 클래스를 같이 씀)
+   수정 버튼을 눌러도 화면이 덜컹거리지 않게 했어요. */
+.wd-title-input,
+.wd-body-input {
+  width: 100%;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+}
+
+.wd-title-input {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--accent);
+  font-weight: 500;
+}
+
+.wd-body-input {
+  min-height: 40vh;
+  field-sizing: content; /* 글 길이에 맞춰 높이가 늘어나요 (최신 크롬) */
+  resize: none;
+}
+
+.wd-error {
+  margin-right: auto; /* 에러 문구는 왼쪽, 버튼은 오른쪽 */
+  font-size: 14px;
+  color: #e5484d;
 }

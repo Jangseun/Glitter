@@ -17,7 +17,12 @@ from app.config import settings
 
 # pool_pre_ping=True: 커넥션을 쓰기 직전에 살아있는지 가볍게 확인해요.
 # DB를 재시작했거나 오래 놀던 연결이 끊겼을 때 "connection closed" 에러가 나는 걸 막아줘요.
-engine = create_engine(settings.database_url, pool_pre_ping=True)
+#
+# connect_timeout=5: DB에 접속이 안 될 때(Docker가 꺼져 있거나 재시작 중) 최대 5초만 기다리고 에러를 내요.
+# 이게 없으면 접속을 끝없이 기다려서, 요청이 응답 없이 멈춘 것처럼 보이고 서버 전체가 먹통이 될 수 있어요.
+# (PostgreSQL 전용 옵션이라 SQLite 등 다른 DB 주소일 땐 넣지 않아요)
+connect_args = {"connect_timeout": 5} if settings.database_url.startswith("postgresql") else {}
+engine = create_engine(settings.database_url, pool_pre_ping=True, connect_args=connect_args)
 
 # autoflush=False: 쿼리할 때마다 변경사항을 자동으로 DB에 밀어넣지 않고, commit할 때 한 번에.
 # expire_on_commit=False: commit 후에도 객체의 값을 그대로 읽을 수 있게.

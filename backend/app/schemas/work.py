@@ -36,6 +36,16 @@ class WorkCreate(CamelModel):
     prompt: dict[str, str] | None = None
 
 
+class WorkUpdate(CamelModel):
+    """PATCH /api/works/{id} 요청 본문. 바꾸고 싶은 필드만 보내면 돼요.
+    예) { "title": "새 제목" } → 제목만 바뀌고 본문은 그대로
+    보내지 않은 필드는 None으로 남고, 라우터에서 None인 필드는 건너뛰어요.
+    """
+
+    title: str | None = Field(default=None, min_length=1, max_length=100)
+    body: str | None = Field(default=None, min_length=1)
+
+
 class WorkRead(CamelModel):
     """작품 응답. 프론트에서는 { id, title, body, mode, authors, prompt, createdAt } 로 받아요."""
 
@@ -46,3 +56,4 @@ class WorkRead(CamelModel):
     authors: list[str]
     prompt: dict[str, str] | None
     created_at: datetime
+    updated_at: datetime | None  # 수정한 적 없으면 null

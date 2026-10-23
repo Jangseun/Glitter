@@ -3,6 +3,7 @@
 GET    /api/works            작품 목록 (최신순)
 GET    /api/works/{work_id}  작품 하나
 POST   /api/works            작품 저장
+PATCH  /api/works/{work_id}  작품 수정 (보낸 필드만)
 DELETE /api/works/{work_id}  작품 삭제
 """
 
@@ -11,7 +12,7 @@ from sqlalchemy import select
 
 from app.database import DbSession
 from app.models import Work
-from app.schemas.work import WorkCreate, WorkRead
+from app.schemas.work import WorkCreate, WorkRead, WorkUpdate
 
 router = APIRouter(prefix="/api/works", tags=["works"])
 
@@ -46,6 +47,25 @@ def create_work(data: WorkCreate, db: DbSession):
     # created_at은 DB가 채운 값(server_default)이라 파이썬 객체엔 아직 없어요.
     # refresh로 DB에서 방금 저장된 행을 다시 읽어와 채워줘요.
     db.refresh(work)
+    return work
+
+
+# PUT이 아니라 PATCH를 쓰는 이유:
+# PUT은 "작품 전체를 이걸로 통째로 교체", PATCH는 "보낸 부분만 고치기"라는 뜻이에요.
+# 제목/본문만 고치고 mode, authors, prompt는 그대로 두니까 PATCH가 맞아요.
+@router.patch("/{work_id}", response_model=WorkRead)
+def update_work(work_id: str, data: WorkUpdate, db: DbSession):
+    work = get_work_or_404(db, work_id)
+
+    # exclude_none=True: 값이 None인 필드(=안 보낸 필드)는 빼고 dict로 만들어요.
+    # 예) {"title": "새 제목"}만 보냈으면 → {"title": "새 제목"}
+    changes = data.model_dump(exclude_none=True)
+    for field, value in changes.items():
+        setattr(work, field, value)  # work.title = "새 제목" 과 같은 뜻
+
+    if changes:
+        db.commit()  # UPDATE 실행 (이때 updated_at도 onupdate로 자동 갱신)
+        db.refresh(work)  # DB가 채운 updated_at 값을 다시 읽어오기
     return work
 
 
