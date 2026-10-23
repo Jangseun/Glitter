@@ -1,0 +1,102 @@
+.topbar {
+  position: sticky; /* 스크롤해도 화면 위에 붙어 있어요 */
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 14px 48px;
+  border-bottom: 1px solid var(--border);
+  /* 살짝 비치는 배경: 아래 내용이 스크롤될 때 은은하게 보여요 */
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  text-align: left;
+}
+
+.topbar-logo {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--accent-text);
+  text-decoration: none;
+}
+
+.topbar-nav {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto; /* 메뉴가 넘치면 가로로 스크롤 */
+}
+
+.topbar-link {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 15px;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.topbar-link:hover {
+  color: var(--text-h);
+}
+
+/* NavLink가 지금 페이지 메뉴에 붙여주는 클래스 */
+.topbar-link.active {
+  background: var(--accent-bg);
+  color: var(--text-h);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.topbar-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.topbar-icon:hover {
+  border-color: var(--accent-border);
+}
+
+.topbar-user {
+  margin-left: 4px;
+  font-size: 14px;
+  color: var(--text-h);
+  white-space: nowrap;
+}
+
+.topbar-btn {
+  padding: 6px 14px;
+  font-size: 14px;
+}
+
+/* 좁은 화면: 메뉴는 숨기고(홈 화면 카드로 이동) 로고와 오른쪽 버튼만 */
+@media (max-width: 860px) {
+  .topbar {
+    padding: 12px 20px;
+    gap: 12px;
+  }
+  .topbar-nav {
+    display: none;
+  }
+  .topbar-right {
+    margin-left: auto;
+  }
+  .topbar-user {
+    display: none;
+  }
+}

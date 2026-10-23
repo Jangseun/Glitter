@@ -34,9 +34,6 @@ const Works = () => {
   return (
     <div className="page">
       <header className="page-header">
-        <Link to="/" className="page-back">
-          ← 홈
-        </Link>
         <h1 className="page-title">내 작품</h1>
       </header>
 

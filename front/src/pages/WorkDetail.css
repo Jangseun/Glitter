@@ -23,6 +23,7 @@
 }
 
 .wd-body {
+  font-family: var(--font-reading);
   font-size: 18px;
   line-height: 2;
   color: var(--text-h);
@@ -67,5 +68,5 @@
 .wd-error {
   margin-right: auto; /* 에러 문구는 왼쪽, 버튼은 오른쪽 */
   font-size: 14px;
-  color: #e5484d;
+  color: var(--danger);
 }

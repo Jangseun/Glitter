@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import PromptCard from "../components/PromptCard"
 import PromptPicker from "../components/PromptPicker"
 import { isEmptyPrompt } from "../data/storyPrompts"
+import { useAuth } from "../context/AuthContext"
 import { createWork } from "../services/worksApi"
 import "./WritingSolo.css"
 
@@ -47,6 +48,8 @@ const WritingSolo = () => {
   const [title, setTitle] = useState(initialDraft?.title ?? "")
   const [body, setBody] = useState(initialDraft?.body ?? "")
 
+  // 글은 로그인 없이도 쓸 수 있지만(임시 저장됨), 작품으로 저장하려면 로그인이 필요해요.
+  const { user } = useAuth()
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState("")
 
@@ -118,9 +121,6 @@ const WritingSolo = () => {
   return (
     <div className="page ws">
       <header className="page-header">
-        <Link to="/" className="page-back">
-          ← 홈
-        </Link>
         <h1 className="page-title">혼자 이야기 쓰기</h1>
       </header>
 
@@ -185,9 +185,16 @@ const WritingSolo = () => {
             <button type="button" className="btn" onClick={handleReset} disabled={isSaving}>
               처음으로
             </button>
-            <button type="button" className="btn primary" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? "저장 중…" : "완성하고 저장"}
-            </button>
+            {user ? (
+              <button type="button" className="btn primary" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? "저장 중…" : "완성하고 저장"}
+              </button>
+            ) : (
+              // 쓰던 글은 임시 저장돼 있어서, 로그인하고 돌아오면 그대로 이어서 저장할 수 있어요.
+              <Link to="/login?next=/writing/solo" className="btn primary">
+                로그인하고 저장
+              </Link>
+            )}
           </div>
         </div>
       )}

@@ -1,23 +1,39 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+/* =========================================================
+   색상 / 글꼴 토큰 (디자인 값은 전부 여기서만 바꿔요)
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+   테마 적용 방식 (설정 화면의 "테마" 값에 따라):
+   - 라이트: <html data-theme="light">  → 아래 :root 값 그대로
+   - 다크:   <html data-theme="dark">   → [data-theme="dark"] 값으로 덮어씀
+   - 시스템: data-theme 속성 없음       → OS가 다크 모드면 @media 블록이 다크 값으로 덮어씀
+   (속성은 context/SettingsContext.jsx가 붙여줘요. 첫 화면 깜빡임 방지용으로 index.html에서도 미리 붙임)
+   ========================================================= */
+:root {
+  /* 따뜻한 크림/베이지 + 노란(호박색) 포인트 */
+  --bg: #fbf6ec; /* 페이지 바탕 */
+  --surface: #fffdf8; /* 카드/팝업처럼 바탕 위에 올라오는 면 */
+  --text: #7d6c56; /* 보조 글자 (설명, 아직 안 친 글자) */
+  --text-h: #2e2416; /* 본문/제목 글자 */
+  --border: #eadfcb;
+  --accent: #e8a817; /* 버튼 배경, 커서, 진행 바 */
+  --accent-text: #a26b00; /* 강조 "글자"색. 노란색 글자는 밝은 바탕에서 잘 안 보여서 더 진하게 */
+  --on-accent: #2e2416; /* 노란 버튼 위 글자. 흰 글자는 노란색 위에서 안 읽혀서 진한 갈색 */
+  --accent-bg: rgba(232, 168, 23, 0.14);
+  --accent-border: rgba(232, 168, 23, 0.55);
+  --danger: #d64545; /* 오타, 에러 */
+  --danger-bg: rgba(214, 69, 69, 0.14);
+  --shadow: rgba(80, 55, 20, 0.12) 0 10px 24px -6px, rgba(80, 55, 20, 0.06) 0 4px 8px -2px;
+
+  --sans: 'Noto Sans KR', system-ui, 'Segoe UI', sans-serif;
+  --serif: 'Gowun Batang', 'Noto Serif KR', serif;
   --mono: ui-monospace, Consolas, monospace;
+
+  /* 설정 화면에서 바꾸는 값들 (기본값) */
+  --font-reading: var(--sans); /* 타자 문장, 이야기 본문 글꼴 (고딕/명조) */
+  --typing-size: 28px; /* 타자 연습 글자 크기 */
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -30,27 +46,58 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* 다크 테마 값. 아래 두 곳(직접 고른 다크 / 시스템이 다크)에서 똑같이 써요.
+   거의 검정에 가까운 바탕 + 노란기를 뺀 중성 톤 글자 + 채도를 낮춘 모래색 포인트.
+   글자를 새하얀색 대신 살짝 회색빛으로 둬서 바탕과의 대비가 눈을 찌르지 않게 했어요. */
+:root[data-theme='dark'] {
+  --bg: #141312;
+  --surface: #1d1c1a;
+  --text: #9a958d;
+  --text-h: #e2dfd9;
+  --border: #2e2c29;
+  --accent: #e7be34;
+  --accent-text: #e7be34;
+  --on-accent: #141312;
+  --accent-bg: rgba(191, 164, 111, 0.12);
+  --accent-border: rgba(191, 164, 111, 0.4);
+  --danger: #e07a7a;
+  --danger-bg: rgba(224, 122, 122, 0.15);
+  --shadow: rgba(0, 0, 0, 0.45) 0 10px 24px -6px, rgba(0, 0, 0, 0.3) 0 4px 8px -2px;
+  color-scheme: dark; /* 스크롤바, 기본 입력칸 등도 어둡게 */
+}
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+@media (prefers-color-scheme: dark) {
+  /* :not([data-theme]) = 사용자가 테마를 "시스템"으로 둔 경우에만 */
+  :root:not([data-theme]) {
+    --bg: #141312;
+    --surface: #1d1c1a;
+    --text: #9a958d;
+    --text-h: #e2dfd9;
+    --border: #2e2c29;
+    --accent: #e7be34;
+    --accent-text: #e7be34;
+    --on-accent: #141312;
+    --accent-bg: rgba(191, 164, 111, 0.12);
+    --accent-border: rgba(191, 164, 111, 0.4);
+    --danger: #e07a7a;
+    --danger-bg: rgba(224, 122, 122, 0.15);
+    --shadow: rgba(0, 0, 0, 0.45) 0 10px 24px -6px, rgba(0, 0, 0, 0.3) 0 4px 8px -2px;
+    color-scheme: dark;
   }
 }
 
-*{
+/* 설정: 글꼴 / 타자 글자 크기 */
+:root[data-font='serif'] {
+  --font-reading: var(--serif);
+}
+:root[data-typing-size='small'] {
+  --typing-size: 22px;
+}
+:root[data-typing-size='large'] {
+  --typing-size: 34px;
+}
+
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -58,6 +105,9 @@
 
 body {
   margin: 0;
+  background: var(--bg);
+  /* 테마를 바꿀 때 색이 부드럽게 바뀌도록 */
+  transition: background-color 0.2s, color 0.2s;
 }
 
 #root {
@@ -65,7 +115,6 @@ body {
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -74,8 +123,8 @@ body {
 
 h1,
 h2 {
-  font-family: var(--heading);
-  font-weight: 500;
+  font-family: var(--sans);
+  font-weight: 600;
   color: var(--text-h);
 }
 
@@ -101,19 +150,8 @@ p {
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+a {
+  color: var(--accent-text);
 }
 
 /* =========================================================
@@ -133,20 +171,10 @@ code {
   margin-bottom: 40px;
 }
 
-.page-back {
-  color: var(--text);
-  text-decoration: none;
-  font-size: 15px;
-}
-
-.page-back:hover {
-  color: var(--text-h);
-}
-
 /* 기본 h1(56px)은 본문 페이지에선 너무 커서 작게 덮어써요. */
 .page-title {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
   letter-spacing: 0;
 }
 
@@ -159,6 +187,22 @@ code {
   padding: 80px 0;
   color: var(--text);
   text-align: center;
+}
+
+/* 한 줄 입력칸 */
+.field {
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  outline: none;
+  background: var(--surface);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 16px;
+}
+
+.field:focus {
+  border-color: var(--accent);
 }
 
 /* 버튼. <button>과 <Link>(a 태그) 둘 다에 쓸 수 있게 만들었어요. */
@@ -182,7 +226,12 @@ code {
 .btn.primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
+  font-weight: 500;
+}
+
+.btn.primary:hover {
+  filter: brightness(1.05);
 }
 
 .btn:disabled {
@@ -195,6 +244,59 @@ code {
   font-family: var(--mono);
   font-size: 12px;
   opacity: 0.7;
+}
+
+/* 여러 개 중 하나 고르는 버튼 묶음 (설정 화면, 이어쓰기 규칙 등) */
+.seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.seg-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.seg-btn.on {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--text-h);
+}
+
+/* 방장이 아니면 버튼을 못 누르지만, 선택된 값은 잘 보이게 흐리게만 */
+.seg-btn:disabled {
+  cursor: default;
+}
+
+.seg-btn:disabled:not(.on) {
+  opacity: 0.5;
+}
+
+/* 작은 표시 딱지 (방장, 준비 완료 등) */
+.badge {
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.badge.ready {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.badge.host {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
 }
 
 @media (max-width: 600px) {

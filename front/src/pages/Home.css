@@ -6,11 +6,11 @@
   margin: 0;
   font-size: 64px;
   letter-spacing: -2px;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .home-sub {
-  margin-top: 12px;
+  margin-top: 30px;
   font-size: 18px;
   color: var(--text);
 }
@@ -49,7 +49,7 @@
 
 .home-group {
   font-size: 13px;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 @media (max-width: 600px) {

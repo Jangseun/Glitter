@@ -1,0 +1,198 @@
+/* 친구와 타자 대결 방 화면 (tbr = TypingBattleRoom). 시작 화면은 components/RoomLobby.css */
+
+/* ================= 방 화면 ================= */
+.tbr-notice {
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.tbr-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.tbr-hint {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.tbr-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+/* ---------- 대기실 ---------- */
+.tbr-waiting {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.tbr-players {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+
+.tbr-players li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tbr-name {
+  font-size: 18px;
+  color: var(--text-h);
+}
+
+.tbr-name small,
+.lane-name small,
+.tbr-table small {
+  color: var(--text);
+  font-size: 0.8em;
+}
+
+/* ---------- 진행률 레인 ---------- */
+.lanes {
+  list-style: none;
+  margin: 0 0 40px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lanes li {
+  display: grid;
+  grid-template-columns: 120px 1fr 64px;
+  align-items: center;
+  gap: 16px;
+  font-size: 15px;
+}
+
+.lane-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-h);
+}
+
+.lane-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.lane-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--text);
+  transition: width 0.2s ease-out; /* 0.2초마다 오는 진행률 사이를 부드럽게 이어줘요 */
+}
+
+/* 내 레인만 강조 색 */
+.lanes li.me .lane-bar {
+  background: var(--accent);
+}
+
+.lane-stat {
+  text-align: right;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 타자 영역 + 카운트다운 ---------- */
+.tbr-play {
+  position: relative; /* 카운트다운 숫자를 타자 영역 위에 겹치기 위해 */
+}
+
+.countdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.countdown span {
+  font-size: 96px;
+  font-weight: 700;
+  color: var(--accent-text);
+  animation: countdown-pop 0.4s ease-out;
+}
+
+@keyframes countdown-pop {
+  from {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.tbr-wait {
+  margin-top: 32px;
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+/* ---------- 결과 ---------- */
+.tbr-results-title {
+  margin-bottom: 24px;
+  font-size: 28px;
+}
+
+/* 표는 화면이 좁으면 가로 스크롤 (페이지 전체가 옆으로 밀리지 않게) */
+.table-wrap {
+  overflow-x: auto;
+}
+
+.tbr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.tbr-table th,
+.tbr-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tbr-table th {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.tbr-table td {
+  color: var(--text-h);
+}
+
+.tbr-table tr.me td {
+  background: var(--accent-bg);
+}
+
+@media (max-width: 600px) {
+  .lanes li {
+    grid-template-columns: 80px 1fr 52px;
+  }
+}

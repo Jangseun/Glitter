@@ -84,6 +84,7 @@
   background: transparent;
   color: var(--text-h);
   font: inherit;
+  font-family: var(--font-reading);
   font-size: 18px;
   line-height: 1.9;
 }
@@ -108,7 +109,7 @@
 
 .ws-error {
   font-size: 14px;
-  color: #e5484d;
+  color: var(--danger);
 }
 
 @media (max-width: 600px) {

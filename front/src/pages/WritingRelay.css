@@ -1,0 +1,284 @@
+/* 친구와 공동 이어쓰기 방 화면 (wr = WritingRelay). 시작 화면은 components/RoomLobby.css */
+
+.wr-notice {
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.wr-label {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.wr-hint {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.wr-error {
+  font-size: 14px;
+  color: var(--danger);
+}
+
+.wr-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+/* ================= 대기실 ================= */
+.wr-waiting {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.wr-players {
+  margin: 0;
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 18px;
+  color: var(--text-h);
+}
+
+.wr-players small {
+  color: var(--text);
+  font-size: 0.8em;
+}
+
+.wr-players .wr-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.wr-settings > .wr-label {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+.wr-setting {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wr-setting-label {
+  font-size: 14px;
+  color: var(--text-h);
+  font-weight: 500;
+}
+
+.wr-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+/* ================= 쓰는 중 ================= */
+.wr-writing {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.wr-turnbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.wr-timer {
+  font-family: var(--mono);
+  font-size: 22px;
+  color: var(--text-h);
+  font-variant-numeric: tabular-nums;
+}
+
+.wr-timer.urgent {
+  color: var(--danger);
+}
+
+/* 쓰는 순서: 지금 쓰는 사람만 강조 */
+.wr-order {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wr-order li {
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.wr-order li.now {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.wr-empty-story,
+.story-hidden {
+  font-size: 15px;
+  color: var(--text);
+}
+
+/* ---------- 이야기 조각 ---------- */
+.story {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.story-part {
+  /* 왼쪽 세로 줄 색으로 "누가 쓴 조각인지" 구분해요. 색은 아래 author-0~5에서 정해요 */
+  padding-left: 16px;
+  border-left: 3px solid var(--author);
+  animation: story-in 0.3s ease-out;
+}
+
+.story-author {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--author);
+}
+
+.story-text {
+  margin-top: 4px;
+  font-family: var(--font-reading);
+  font-size: 18px;
+  line-height: 1.9;
+  color: var(--text-h);
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+
+/* 참가자별 색 (최대 6명) */
+.author-0 { --author: #c98a00; }
+.author-1 { --author: #2f9e8f; }
+.author-2 { --author: #e8590c; }
+.author-3 { --author: #1c7ed6; }
+.author-4 { --author: #d6336c; }
+.author-5 { --author: #7950f2; }
+
+@keyframes story-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- 내 차례 입력칸 ---------- */
+.wr-editor {
+  padding: 24px;
+  border: 1px solid var(--accent-border);
+  border-radius: 16px;
+}
+
+.wr-textarea {
+  width: 100%;
+  min-height: 160px;
+  field-sizing: content; /* 글 길이에 맞춰 높이가 늘어나요 (최신 크롬) */
+  padding: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: var(--text-h);
+  font: inherit;
+  font-family: var(--font-reading);
+  font-size: 18px;
+  line-height: 1.9;
+}
+
+.wr-editor-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+/* 다른 사람 차례: "OO님이 이어 쓰는 중…" */
+.wr-waiting-turn {
+  padding: 28px;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  text-align: center;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.wr-waiting-turn b {
+  color: var(--text-h);
+}
+
+/* 통통 튀는 연필 아이콘 (글자 "…"만으로는 기다리는 느낌이 약해서) */
+.dots::after {
+  content: "✍️";
+  display: inline-block;
+  animation: dots-bounce 1s ease-in-out infinite;
+}
+
+@keyframes dots-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* ================= 완성 ================= */
+.wr-finished {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.wr-finished-title {
+  margin: 0;
+  font-size: 28px;
+}
+
+.wr-save {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.wr-title-input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 420px;
+}

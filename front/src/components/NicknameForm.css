@@ -1,0 +1,23 @@
+.nick {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.nick-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  outline: none;
+  background: transparent;
+  color: var(--text-h);
+  font: inherit;
+  font-size: 16px;
+}
+
+.nick-input:focus {
+  border-color: var(--accent);
+}

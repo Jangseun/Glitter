@@ -1,0 +1,60 @@
+/* tn = TextNew 줄임말 */
+.tn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 720px;
+}
+
+.tn-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tn-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+.tn-content {
+  min-height: 140px;
+  field-sizing: content;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  outline: none;
+  resize: none;
+  background: var(--surface);
+  color: var(--text-h);
+  font-family: var(--font-reading);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.tn-content:focus {
+  border-color: var(--accent);
+}
+
+.tn-hint {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.tn-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.tn-error {
+  font-size: 14px;
+  color: var(--danger);
+}
+
+@media (max-width: 600px) {
+  .tn-two {
+    grid-template-columns: 1fr;
+  }
+}

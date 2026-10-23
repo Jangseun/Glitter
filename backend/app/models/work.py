@@ -2,11 +2,15 @@
 
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import JSON, DateTime, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import JSON, DateTime, ForeignKey, String, Text, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 
 class Work(Base):
@@ -16,6 +20,12 @@ class Work(Base):
     # 작품 주소(/works/{id})를 공유할 때 다른 작품 번호를 쉽게 추측할 수 없게 하려는 것.
     # default에 함수(lambda)를 넘겨야 행을 만들 때마다 새로 생성돼요. (값을 넘기면 모든 행이 같은 ID가 됨)
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+
+    # 작품 주인(저장한 회원). 외래 키(ForeignKey): users 테이블의 id만 들어올 수 있다는 DB 규칙이에요.
+    # ondelete="CASCADE": 회원이 탈퇴(삭제)되면 그 회원의 작품도 DB가 같이 지워줘요.
+    # nullable=True인 이유: 로그인 기능이 생기기 전에 저장한 작품은 주인이 없어서예요. (아무도 못 봄)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=True)
+    user: Mapped["User | None"] = relationship(back_populates="works")
 
     title: Mapped[str] = mapped_column(String(100))
     body: Mapped[str] = mapped_column(Text)  # 길이 제한 없는 긴 문자열

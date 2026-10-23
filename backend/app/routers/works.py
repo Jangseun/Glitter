@@ -1,6 +1,6 @@
-"""작품 API.
+"""작품 API. 모든 API가 로그인이 필요하고, "내 작품"만 보고 고칠 수 있어요.
 
-GET    /api/works            작품 목록 (최신순)
+GET    /api/works            내 작품 목록 (최신순)
 GET    /api/works/{work_id}  작품 하나
 POST   /api/works            작품 저장
 PATCH  /api/works/{work_id}  작품 수정 (보낸 필드만)
@@ -10,38 +10,44 @@ DELETE /api/works/{work_id}  작품 삭제
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
+from app.auth import CurrentUser
 from app.database import DbSession
-from app.models import Work
+from app.models import User, Work
 from app.schemas.work import WorkCreate, WorkRead, WorkUpdate
 
 router = APIRouter(prefix="/api/works", tags=["works"])
 
 
-def get_work_or_404(db: DbSession, work_id: str) -> Work:
+def get_my_work_or_404(db: DbSession, work_id: str, user: User) -> Work:
     # db.get(): 기본 키(id)로 한 행을 찾아요. 없으면 None
     work = db.get(Work, work_id)
-    if work is None:
+    # 남의 작품이면 "권한 없음(403)"이 아니라 "없음(404)"으로 답해요.
+    # 403이라고 하면 "그 id의 작품이 존재한다"는 사실 자체를 알려주게 되기 때문이에요.
+    if work is None or work.user_id != user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="작품을 찾을 수 없어요.")
     return work
 
 
 # response_model: 돌려주는 SQLAlchemy 객체를 WorkRead 모양의 JSON으로 바꿔줘요. (camelCase 포함)
+# user: CurrentUser → 로그인 안 했으면 이 함수가 실행되기 전에 FastAPI가 401을 돌려줘요. (app/auth.py)
 @router.get("", response_model=list[WorkRead])
-def list_works(db: DbSession):
-    # select(Work) = SELECT * FROM works / db.scalars(...).all() = 결과를 Work 객체 리스트로
-    return db.scalars(select(Work).order_by(Work.created_at.desc())).all()
+def list_works(db: DbSession, user: CurrentUser):
+    # WHERE user_id = 내 번호 ORDER BY created_at DESC
+    query = select(Work).where(Work.user_id == user.id).order_by(Work.created_at.desc())
+    return db.scalars(query).all()
 
 
 @router.get("/{work_id}", response_model=WorkRead)
-def read_work(work_id: str, db: DbSession):
-    return get_work_or_404(db, work_id)
+def read_work(work_id: str, db: DbSession, user: CurrentUser):
+    return get_my_work_or_404(db, work_id, user)
 
 
 @router.post("", response_model=WorkRead, status_code=status.HTTP_201_CREATED)
-def create_work(data: WorkCreate, db: DbSession):
+def create_work(data: WorkCreate, db: DbSession, user: CurrentUser):
     # model_dump(): Pydantic 객체 → 파이썬 dict (필드 이름은 snake_case)
     # **dict: dict를 풀어서 Work(title=..., body=..., ...)처럼 넘겨요.
-    work = Work(**data.model_dump())
+    # user_id는 프론트가 보낸 값이 아니라 "토큰의 주인"으로 서버가 직접 넣어요. (남의 이름으로 저장 방지)
+    work = Work(**data.model_dump(), user_id=user.id)
     db.add(work)
     db.commit()  # 이 순간 실제로 INSERT가 실행돼요
     # created_at은 DB가 채운 값(server_default)이라 파이썬 객체엔 아직 없어요.
@@ -54,8 +60,8 @@ def create_work(data: WorkCreate, db: DbSession):
 # PUT은 "작품 전체를 이걸로 통째로 교체", PATCH는 "보낸 부분만 고치기"라는 뜻이에요.
 # 제목/본문만 고치고 mode, authors, prompt는 그대로 두니까 PATCH가 맞아요.
 @router.patch("/{work_id}", response_model=WorkRead)
-def update_work(work_id: str, data: WorkUpdate, db: DbSession):
-    work = get_work_or_404(db, work_id)
+def update_work(work_id: str, data: WorkUpdate, db: DbSession, user: CurrentUser):
+    work = get_my_work_or_404(db, work_id, user)
 
     # exclude_none=True: 값이 None인 필드(=안 보낸 필드)는 빼고 dict로 만들어요.
     # 예) {"title": "새 제목"}만 보냈으면 → {"title": "새 제목"}
@@ -70,8 +76,8 @@ def update_work(work_id: str, data: WorkUpdate, db: DbSession):
 
 
 @router.delete("/{work_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_work(work_id: str, db: DbSession):
-    work = get_work_or_404(db, work_id)
+def delete_work(work_id: str, db: DbSession, user: CurrentUser):
+    work = get_my_work_or_404(db, work_id, user)
     db.delete(work)
     db.commit()
     # 204 No Content: 성공했고 돌려줄 내용은 없다는 뜻이라 아무것도 return하지 않아요.

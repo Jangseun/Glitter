@@ -1,0 +1,19 @@
+.back-btn {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-h);
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.back-btn:hover {
+  border-color: var(--accent-border);
+  transform: translateX(-2px); /* 살짝 왼쪽으로 밀리면서 "뒤로" 느낌 */
+}

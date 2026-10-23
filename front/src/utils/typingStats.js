@@ -5,8 +5,10 @@
 // - 시작 시점: 사용자가 첫 입력(첫 자모 or 첫 글자)을 한 순간
 // - 종료 시점: 확정된 입력 길이가 문장 길이에 도달한 순간
 // - 타수(타/분): "맞게 친 글자"를 자판 입력 횟수(자모 수)로 바꿔서 1분 기준으로 환산
-// - 오타 수: 글자가 확정될 때 정답과 달랐던 횟수 (나중에 지우고 고쳐도 오타 기록은 남음)
-// - 정확도: (확정된 전체 글자 수 - 오타 수) / 확정된 전체 글자 수
+// - 오타 수: 지금 입력되어 있는 글자 중 정답과 다른 글자 수
+//            (다른 타자 연습 프로그램처럼 "다 쳤을 때 몇 글자가 틀렸는지" 기준.
+//             치는 도중 틀렸다가 백스페이스로 고치면 오타에서 빠져요)
+// - 정확도: 맞게 친 글자 수 / 입력한 글자 수
 //
 // keydown 횟수를 세지 않는 이유:
 // 한글은 IME가 여러 키 입력을 조합해서 한 글자로 만들기 때문에 keydown 횟수가
@@ -48,9 +50,7 @@ export const countStrokes = (char) => {
 // target:     정답 문장
 // typed:      지금까지 확정된 입력 문자열
 // elapsedMs:  시작 후 흐른 시간(ms)
-// typedCount: 지금까지 "확정된" 글자의 누적 개수 (지웠다가 다시 친 것도 포함)
-// typoCount:  그중 틀렸던 글자의 누적 개수
-export const calcTypingStats = ({ target, typed, elapsedMs, typedCount, typoCount }) => {
+export const calcTypingStats = ({ target, typed, elapsedMs }) => {
   let correctChars = 0
   let correctStrokes = 0
 
@@ -66,15 +66,15 @@ export const calcTypingStats = ({ target, typed, elapsedMs, typedCount, typoCoun
   const minutes = elapsedMs / 60000
   const speed = elapsedMs >= 1000 ? Math.round(correctStrokes / minutes) : 0
 
+  const typoCount = typed.length - correctChars
+
   // 아직 아무것도 안 쳤으면 정확도는 100%로 보여줘요.
-  const accuracy =
-    typedCount > 0 ? Math.max(0, Math.round(((typedCount - typoCount) / typedCount) * 1000) / 10) : 100
+  const accuracy = typed.length > 0 ? Math.round((correctChars / typed.length) * 1000) / 10 : 100
 
   return {
     speed, // 타/분
     accuracy, // % (소수점 첫째 자리까지)
-    typoCount, // 누적 오타 수
-    remainingTypos: typed.length - correctChars, // 최종 입력에 남아있는 틀린 글자 수
+    typoCount, // 틀린 글자 수
     seconds: Math.max(0, elapsedMs) / 1000,
     progress: target.length > 0 ? Math.min(1, typed.length / target.length) : 0, // 0 ~ 1
   }

@@ -1,0 +1,44 @@
+.settings {
+  display: flex;
+  flex-direction: column;
+  max-width: 720px;
+}
+
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-label {
+  margin: 0;
+  font-size: 18px;
+}
+
+.settings-desc {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.settings-preview {
+  margin-top: 32px;
+  padding: 24px 28px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+/* 실제 타자 화면과 같은 글꼴/크기 변수를 써서, 바꾸는 즉시 어떻게 보일지 확인할 수 있어요 */
+.settings-sample {
+  margin-top: 8px;
+  font-family: var(--font-reading);
+  font-size: var(--typing-size);
+  line-height: 1.6;
+  color: var(--text-h);
+  word-break: keep-all;
+}

@@ -47,7 +47,7 @@ const TypingResult = ({ stats, onRestart, onNext }) => {
             다시하기 <kbd>Esc</kbd>
           </button>
           <button type="button" className="btn primary" onClick={onNext}>
-            다음 문장 <kbd>Enter</kbd>
+            다음 글 <kbd>Enter</kbd>
           </button>
         </div>
       </section>

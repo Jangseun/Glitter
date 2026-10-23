@@ -1,10 +1,33 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>front</title>
+    <title>Glitter</title>
+
+    <!-- 한글 웹폰트: Noto Sans KR(고딕), Gowun Batang(명조). 설정 화면에서 고를 수 있어요 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!--
+      저장된 설정(테마/글꼴/글자 크기)을 React가 뜨기 "전에" 먼저 적용해요.
+      이게 없으면 다크 모드 사용자도 첫 순간 밝은 화면이 번쩍 보였다가 바뀌어요.
+      (React 쪽 적용 코드는 src/context/SettingsContext.jsx, 저장 키도 거기와 같아야 해요)
+    -->
+    <script>
+      try {
+        var s = JSON.parse(localStorage.getItem("glitter:settings")) || {}
+        var el = document.documentElement
+        if (s.theme === "light" || s.theme === "dark") el.dataset.theme = s.theme
+        if (s.font === "serif") el.dataset.font = "serif"
+        if (s.typingSize === "small" || s.typingSize === "large") el.dataset.typingSize = s.typingSize
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

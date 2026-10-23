@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import PromptCard from "../components/PromptCard"
 import { deleteWork, getWork, updateWork } from "../services/worksApi"
 import { MODE_LABELS, formatDate } from "../utils/format"
+import BackButton from "../components/BackButton"
 import "./WorkDetail.css"
 
 // 작품 상세 페이지 (/works/:workId)
@@ -107,9 +108,7 @@ const WorkDetail = () => {
   return (
     <div className="page">
       <header className="page-header">
-        <Link to="/works" className="page-back">
-          ← 내 작품
-        </Link>
+        <BackButton to="/works" label="내 작품 목록으로" />
       </header>
 
       {error && <p className="empty">{error}</p>}
