@@ -13,14 +13,21 @@ const WorkDetail = () => {
 
   // undefined = 불러오는 중, null = 해당 ID의 작품이 없음, 객체 = 불러온 작품
   const [work, setWork] = useState(undefined)
+  // 서버 오류 등으로 불러오기/삭제에 실패했을 때 보여줄 메시지
+  const [error, setError] = useState("")
 
   // workId가 바뀔 때마다(다른 작품으로 이동) 다시 불러와요.
   // ignore 플래그의 이유는 Works.jsx의 useEffect 주석 참고
   useEffect(() => {
     let ignore = false
-    getWork(workId).then((result) => {
-      if (!ignore) setWork(result)
-    })
+    getWork(workId)
+      .then((result) => {
+        if (!ignore) setWork(result)
+      })
+      .catch((err) => {
+        console.error(err)
+        if (!ignore) setError("작품을 불러오지 못했어요. 서버가 켜져 있는지 확인해주세요.")
+      })
     return () => {
       ignore = true
     }
@@ -28,7 +35,13 @@ const WorkDetail = () => {
 
   const handleDelete = async () => {
     if (!window.confirm("이 작품을 삭제할까요? 되돌릴 수 없어요.")) return
-    await deleteWork(workId)
+    try {
+      await deleteWork(workId)
+    } catch (err) {
+      console.error(err)
+      setError("삭제하지 못했어요. 잠시 후 다시 시도해주세요.")
+      return
+    }
     // replace: 뒤로 가기를 눌렀을 때 삭제된 작품 페이지로 돌아오지 않게 기록을 교체해요.
     navigate("/works", { replace: true })
   }
@@ -41,7 +54,9 @@ const WorkDetail = () => {
         </Link>
       </header>
 
-      {work === undefined && <p className="empty">불러오는 중…</p>}
+      {error && <p className="empty">{error}</p>}
+
+      {!error && work === undefined && <p className="empty">불러오는 중…</p>}
 
       {work === null && (
         <div className="empty">

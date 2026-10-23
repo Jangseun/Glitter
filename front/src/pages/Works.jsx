@@ -8,17 +8,24 @@ import "./Works.css"
 const Works = () => {
   // null = 아직 불러오는 중, [] = 불러왔는데 작품이 없음. 두 상태를 구분하려고 null로 시작해요.
   const [works, setWorks] = useState(null)
+  // 서버가 꺼져 있거나 네트워크 오류로 목록을 못 불러왔을 때 true
+  const [loadError, setLoadError] = useState(false)
 
   // 페이지에 들어오면 작품 목록을 한 번 불러와요.
   // useEffect의 콜백 자체는 async로 만들 수 없어서(cleanup 함수를 돌려줘야 하므로)
   // 안에서 Promise의 .then으로 처리해요.
   // ignore 플래그: 불러오는 도중 페이지를 떠나면, 늦게 도착한 결과로 state를 바꾸지 않게 막아요.
-  // (지금은 localStorage라 즉시 끝나지만, 서버 API로 바뀌면 꼭 필요해지는 패턴이에요)
+  // (서버 응답은 시간이 걸리니까, 그 사이 다른 페이지로 이동하는 경우를 대비하는 패턴이에요)
   useEffect(() => {
     let ignore = false
-    listWorks().then((result) => {
-      if (!ignore) setWorks(result)
-    })
+    listWorks()
+      .then((result) => {
+        if (!ignore) setWorks(result)
+      })
+      .catch((err) => {
+        console.error(err)
+        if (!ignore) setLoadError(true)
+      })
     return () => {
       ignore = true
     }
@@ -33,7 +40,9 @@ const Works = () => {
         <h1 className="page-title">내 작품</h1>
       </header>
 
-      {works === null && <p className="empty">불러오는 중…</p>}
+      {loadError && <p className="empty">작품을 불러오지 못했어요. 서버가 켜져 있는지 확인해주세요.</p>}
+
+      {!loadError && works === null && <p className="empty">불러오는 중…</p>}
 
       {works?.length === 0 && (
         <div className="empty">
