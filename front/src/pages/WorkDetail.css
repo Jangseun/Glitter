@@ -1,0 +1,38 @@
+/* wd = WorkDetail 줄임말 */
+.wd {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.wd-title {
+  margin: 0;
+  font-size: 36px;
+  letter-spacing: -0.5px;
+}
+
+.wd-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: -12px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.wd-body {
+  font-size: 18px;
+  line-height: 2;
+  color: var(--text-h);
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+
+.wd-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}

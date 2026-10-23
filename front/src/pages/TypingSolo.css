@@ -1,0 +1,224 @@
+/* ts = TypingSolo 줄임말. 이 페이지 전용 클래스에는 ts- 를 붙여서 다른 페이지와 안 겹치게 해요. */
+
+.ts {
+  padding: 32px 48px 64px;
+  text-align: left;
+}
+
+.ts-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.ts-back {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.ts-back:hover {
+  color: var(--text-h);
+}
+
+/* index.css의 h1(56px)은 이 화면에선 너무 커서 작게 덮어써요. 문장에 집중하도록. */
+.ts-title {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+/* ---------- 실시간 기록 바 ---------- */
+.ts-stats {
+  display: flex;
+  gap: 28px;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.ts-stats b {
+  color: var(--text-h);
+  font-weight: 600;
+  /* 숫자 폭을 고정해서 숫자가 바뀔 때 글자들이 좌우로 흔들리지 않게 */
+  font-variant-numeric: tabular-nums;
+}
+
+.ts-progress {
+  height: 3px;
+  margin: 12px 0 40px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.ts-progress-bar {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.15s ease-out;
+}
+
+/* ---------- 문장 + 입력 영역 ---------- */
+.ts-board {
+  position: relative; /* 안쪽 textarea/overlay를 이 영역 기준으로 겹치기 위해 */
+  cursor: text;
+}
+
+.ts-text {
+  font-size: 28px;
+  line-height: 1.9;
+  /* pre-wrap: 스페이스를 그대로 유지하면서, 화면 너비에 맞춰 자동 줄바꿈도 해줘요. */
+  white-space: pre-wrap;
+  /* keep-all: 한글 단어 중간에서 줄이 끊기지 않고 띄어쓰기 단위로 줄바꿈 */
+  word-break: keep-all;
+  transition: filter 0.2s, opacity 0.2s;
+}
+
+/* 포커스를 잃었을 때 문장을 흐리게 해서 "지금은 입력이 안 된다"는 걸 알려줘요. */
+.ts-board.blurred .ts-text {
+  filter: blur(3px);
+  opacity: 0.5;
+}
+
+/* 글자 하나하나 */
+.ch {
+  position: relative; /* 커서(.caret)를 글자 기준으로 위치시키기 위해 */
+  /* 아직 안 친 글자. opacity 대신 색으로 흐리게 하는 이유:
+     opacity를 쓰면 글자 안에 들어있는 커서(.caret)까지 같이 흐려져요. */
+  color: var(--text);
+}
+
+.ch.ok,
+.ch.composing {
+  color: var(--text-h);
+}
+
+.ch.bad {
+  color: #e5484d;
+}
+
+/* 스페이스 관련 오타는 글자색만으론 안 보여서 배경을 깔아요. */
+.ch.bad-space {
+  background: rgba(229, 72, 77, 0.25);
+  border-radius: 3px;
+}
+
+/* 깜빡이는 세로 커서 */
+.caret {
+  position: absolute;
+  left: 0; /* 기본: 글자 왼쪽 = 다음에 칠 자리 */
+  top: 0.25em;
+  width: 2px;
+  height: 1.3em;
+  margin-left: -1px;
+  background: var(--accent);
+  animation: ts-blink 1s step-start infinite;
+}
+
+/* 조합 중일 땐 조합 중인 글자 오른쪽에 커서를 둬요. */
+.caret.after {
+  left: 100%;
+}
+
+@keyframes ts-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/*
+  실제 입력을 받는 textarea. 문장 영역 위에 투명하게 겹쳐 둬요.
+  크기를 정상적으로 줘야 Windows IME가 안정적으로 동작해서 영역 전체를 덮게 했어요.
+*/
+.ts-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
+  font-size: 28px; /* 실제 글자 크기와 맞춰줘야 IME 후보창(한자 등) 위치가 자연스러워요 */
+  line-height: 1.9;
+  /* 마우스로 textarea를 직접 건드릴 수 없게 막아요 (드래그로 선택 자체가 안 되게).
+     포커스는 .ts-board의 onClick이 .focus()를 직접 호출해서 줘요. */
+  pointer-events: none;
+}
+
+/* 드래그로 글자를 선택해도 하이라이트/글자가 안 보이게 (이중 안전장치) */
+.ts-input::selection {
+  background: transparent;
+  color: transparent;
+}
+
+.ts-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--text-h);
+}
+
+.ts-source {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text);
+  opacity: 0.8;
+}
+
+/* ---------- 하단 (진행 중) ---------- */
+.ts-footer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 40px;
+  font-size: 15px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.ts-hint {
+  flex: 1;
+  opacity: 0.8;
+}
+
+.ts-skip {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.ts-skip:hover {
+  color: var(--text-h);
+  border-color: var(--accent-border);
+}
+
+@media (max-width: 600px) {
+  .ts {
+    padding: 24px 20px 48px;
+  }
+  .ts-text,
+  .ts-input {
+    font-size: 22px;
+  }
+  .ts-stats {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+}

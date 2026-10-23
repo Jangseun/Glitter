@@ -1,0 +1,38 @@
+.pcard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 0;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--accent-bg);
+}
+
+.pcard-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.pcard-row dt {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.pcard-row dd {
+  margin: 0;
+  color: var(--text-h);
+  font-weight: 500;
+}
+
+.pcard-check {
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.pcard-check.done {
+  color: var(--accent);
+}
