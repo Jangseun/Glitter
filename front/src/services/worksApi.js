@@ -38,12 +38,14 @@ export const createWork = ({ title, body, mode = "solo", authors = [], prompt = 
     body: { title, body, mode, authors, prompt },
   })
 
-// 작품 수정. 바꿀 필드만 넘기면 돼요. 예) updateWork(id, { title: "새 제목" })
+// 작품 수정. 바꿀 필드만 넘기면 돼요. 예) updateWork(id, { title: "새 제목" }), updateWork(id, { isPublic: true })
 // 수정된 작품(updatedAt 갱신됨)을 돌려줘요.
-export const updateWork = (id, { title, body }) =>
+// 주의: 예전엔 { title, body }만 골라서 보내서 isPublic이 서버에 안 갔어요. (공개하기가 안 되던 버그)
+// 받은 객체를 그대로 보내고, 어떤 필드를 받을지는 서버(WorkUpdate 스키마)가 정해요.
+export const updateWork = (id, changes) =>
   request(`/api/works/${encodeURIComponent(id)}`, {
     method: "PATCH",
-    body: { title, body },
+    body: changes,
   })
 
 // 작품 삭제

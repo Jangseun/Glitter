@@ -85,8 +85,10 @@ const TopBar = () => {
       </nav>
 
       <div className="topbar-right">
-        {/* 좁은 화면(휴대폰)에서만 보이는 메뉴 버튼. key로 페이지 이동 시 저절로 닫히게 */}
-        <MobileNav key={here} />
+        {/* 좁은 화면(휴대폰)에서만 보이는 메뉴 버튼. key로 페이지 이동 시 저절로 닫히게
+            주의: 같은 부모 안의 형제끼리 key가 겹치면 React가 둘을 구분 못 해서
+            이전 요소를 못 지우고 화면에 계속 쌓여요. 그래서 앞에 "nav:", "user:"를 붙여 서로 다르게 해요. */}
+        <MobileNav key={`nav:${here}`} />
         <button
           type="button"
           className="topbar-icon"
@@ -103,7 +105,7 @@ const TopBar = () => {
         {/* 토큰 확인 중일 땐 아무것도 안 보여줘요. (로그인 버튼이 잠깐 보였다가 닉네임으로 바뀌는 깜빡임 방지) */}
         {checking ? null : user ? (
           // key: 페이지를 이동할 때마다 메뉴를 새로 만들어서 저절로 닫히게 해요
-          <UserMenu key={here} nickname={user.nickname} onLogout={logout} />
+          <UserMenu key={`user:${here}`} nickname={user.nickname} onLogout={logout} />
         ) : (
           <Link to={loginHref} className="btn primary topbar-btn">
             로그인
