@@ -1,5 +1,7 @@
 import { useState } from "react"
+import { useAuth } from "../context/AuthContext"
 import { STORY_PROMPT_CATEGORIES, drawPrompt, redrawOne } from "../data/storyPrompts"
+import { savePrompt } from "../services/promptsApi"
 import "./PromptPicker.css"
 
 // 랜덤 소재 뽑기 UI.
@@ -9,7 +11,8 @@ import "./PromptPicker.css"
 //
 // 뽑힌 결과(value)는 부모(WritingSolo)가 들고 있어요. 글쓰기 화면으로 넘어갈 때
 // 그 값을 그대로 가져가야 하기 때문이에요. 이 컴포넌트는 "어떤 항목을 켰는지"만 직접 관리해요.
-const PromptPicker = ({ value, onChange }) => {
+// onSaved: 소재함에 저장한 뒤 실행할 함수 (소재함 페이지에서 목록 새로고침용, 없어도 됨)
+const PromptPicker = ({ value, onChange, onSaved }) => {
   // 뽑기 대상으로 켜둔 항목 key 목록. 처음엔 전부 켜둬요.
   const [enabledKeys, setEnabledKeys] = useState(() => STORY_PROMPT_CATEGORIES.map((c) => c.key))
 
@@ -24,6 +27,27 @@ const PromptPicker = ({ value, onChange }) => {
       }
     } else {
       setEnabledKeys([...enabledKeys, key])
+    }
+  }
+
+  // ---- 소재함에 저장 (로그인한 사람만 버튼이 보여요) ----
+  const { user } = useAuth()
+  // 마지막으로 저장한 소재를 글자로 바꿔 기억해둬요. 지금 소재와 같으면 "저장됨"으로 표시하고,
+  // 다시 뽑거나 하나라도 바뀌면 문자열이 달라져서 다시 저장 버튼이 활성화돼요.
+  const [savedKey, setSavedKey] = useState("")
+  const [saveState, setSaveState] = useState("idle") // idle | saving | error
+  const currentKey = JSON.stringify(value ?? {})
+
+  const handleSave = async () => {
+    setSaveState("saving")
+    try {
+      await savePrompt({ prompt: value })
+      setSavedKey(currentKey)
+      setSaveState("idle")
+      onSaved?.()
+    } catch (err) {
+      console.error(err)
+      setSaveState("error")
     }
   }
 
@@ -78,6 +102,20 @@ const PromptPicker = ({ value, onChange }) => {
             </li>
           ))}
         </ul>
+      )}
+
+      {hasResult && user && (
+        <div className="picker-save">
+          <button
+            type="button"
+            className="btn"
+            onClick={handleSave}
+            disabled={saveState === "saving" || savedKey === currentKey}
+          >
+            {savedKey === currentKey ? "⭐ 소재함에 저장됨" : saveState === "saving" ? "저장 중…" : "☆ 소재함에 저장"}
+          </button>
+          {saveState === "error" && <span className="picker-save-error">저장하지 못했어요.</span>}
+        </div>
       )}
     </div>
   )

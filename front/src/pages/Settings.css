@@ -42,3 +42,155 @@
   color: var(--text-h);
   word-break: keep-all;
 }
+
+/* ---------- 탭 ---------- */
+.st-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.st-tab {
+  padding: 10px 18px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px; /* 아래 테두리와 겹쳐서 선택 표시가 테두리 위에 놓이게 */
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.st-tab.on {
+  border-bottom-color: var(--accent);
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.st-error,
+.st-msg {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.st-error {
+  color: var(--danger);
+}
+
+/* settings-row 안에서 메시지가 다음 줄로 가도록 */
+.settings-row .st-msg {
+  flex-basis: 100%;
+}
+
+/* ---------- 프로필: 요약 카드 ---------- */
+.st-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.st-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.st-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.st-tile-label {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.st-tile-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text-h);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-tile-value small {
+  margin-left: 3px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text);
+}
+
+/* ---------- 프로필: 그래프 ---------- */
+.st-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+/* ---------- 프로필: 기록 표 ---------- */
+.st-table-wrap summary {
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.st-table-wrap .table-wrap {
+  margin-top: 12px;
+  overflow-x: auto; /* 좁은 화면에선 표만 가로 스크롤 */
+}
+
+.st-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-table th,
+.st-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.st-table th {
+  font-weight: 400;
+  color: var(--text);
+}
+
+.st-table td {
+  color: var(--text-h);
+}
+
+/* ---------- 계정 ---------- */
+/* 계정 탭 항목은 "제목/설명" 아래에 입력칸을 두는 세로 배치로 통일 */
+.settings-row.stack {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.st-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.st-danger .settings-label {
+  color: var(--danger);
+}
+
+.st-danger-btn {
+  color: var(--danger);
+  border-color: var(--danger);
+}

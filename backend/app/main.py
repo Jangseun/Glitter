@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import auth, rooms, typing_texts, works
+from app.routers import auth, community, prompts, rooms, typing_records, typing_texts, works
 
 app = FastAPI(title="Glitter API")
 
@@ -28,6 +28,9 @@ app.add_middleware(
 app.include_router(auth.router)  # 회원가입/로그인
 app.include_router(works.router)
 app.include_router(typing_texts.router)  # 타자 연습 글
+app.include_router(typing_records.router)  # 타자 기록 (성장 그래프)
+app.include_router(prompts.router)  # 개인 소재함
+app.include_router(community.router)  # 커뮤니티 (공개 작품, 좋아요, 댓글)
 app.include_router(rooms.router)  # 실시간 방 (타자 대결 등)
 
 

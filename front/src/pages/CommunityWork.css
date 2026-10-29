@@ -1,0 +1,152 @@
+/* cw = CommunityWork (커뮤니티 작품 읽기) */
+.cw {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cw-private {
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--accent-bg);
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.cw-title {
+  margin: 0;
+  font-size: 36px;
+  letter-spacing: -0.5px;
+}
+
+.cw-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: -12px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.cw-body {
+  font-family: var(--font-reading);
+  font-size: 18px;
+  line-height: 2;
+  color: var(--text-h);
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+
+.cw-like {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---------- 댓글 ---------- */
+.cw-comments-title {
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.cw-comment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cw-comment {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.cw-comment-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.cw-comment-head b {
+  color: var(--text-h);
+  font-size: 14px;
+}
+
+.cw-comment-del {
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.cw-comment-del:hover {
+  color: var(--danger);
+}
+
+.cw-comment-body {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-h);
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+
+.cw-comment-form {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cw-comment-input {
+  min-height: 80px;
+  field-sizing: content;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  outline: none;
+  resize: none;
+  background: var(--surface);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.cw-comment-input:focus {
+  border-color: var(--accent);
+}
+
+.cw-comment-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cw-count {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.cw-error {
+  margin-right: auto;
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.cw-login {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text);
+}

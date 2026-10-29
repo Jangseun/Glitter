@@ -3,7 +3,8 @@ import "./TypingResult.css"
 // 타자 연습이 끝났을 때 보여주는 결과 카드.
 // 친구 대결에서도 내 결과를 보여줄 때 재사용할 수 있도록 계산은 하지 않고
 // 이미 계산된 stats만 받아서 보여주기만 해요.
-const TypingResult = ({ stats, onRestart, onNext }) => {
+// note: 결과 아래 작게 보여줄 안내 문구 (예: "기록을 저장했어요") — 없으면 안 보여요
+const TypingResult = ({ stats, onRestart, onNext, note }) => {
   return (
     // 화면 전체를 덮는 반투명 검은 배경 + 가운데 결과 카드(팝업) 구조예요.
     // position: fixed라서 페이지 어디에 렌더링되든 항상 화면 전체를 덮어요.
@@ -42,7 +43,9 @@ const TypingResult = ({ stats, onRestart, onNext }) => {
           </div>
         </dl>
 
-        <div className="result-actions">
+        {note && <p className="result-note">{note}</p>}
+
+      <div className="result-actions">
           <button type="button" className="btn" onClick={onRestart}>
             다시하기 <kbd>Esc</kbd>
           </button>

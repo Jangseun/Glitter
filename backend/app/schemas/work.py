@@ -44,6 +44,7 @@ class WorkUpdate(CamelModel):
 
     title: str | None = Field(default=None, min_length=1, max_length=100)
     body: str | None = Field(default=None, min_length=1)
+    is_public: bool | None = None  # 커뮤니티 공개/비공개 전환
 
 
 class WorkRead(CamelModel):
@@ -57,3 +58,4 @@ class WorkRead(CamelModel):
     prompt: dict[str, str] | None
     created_at: datetime
     updated_at: datetime | None  # 수정한 적 없으면 null
+    is_public: bool

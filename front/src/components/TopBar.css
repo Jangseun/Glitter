@@ -63,6 +63,7 @@
   border: 1px solid var(--border);
   border-radius: 50%;
   background: transparent;
+  color: var(--text-h); /* SVG 아이콘 선 색 */
   font-size: 16px;
   text-decoration: none;
   cursor: pointer;
@@ -70,13 +71,7 @@
 
 .topbar-icon:hover {
   border-color: var(--accent-border);
-}
-
-.topbar-user {
-  margin-left: 4px;
-  font-size: 14px;
-  color: var(--text-h);
-  white-space: nowrap;
+  color: var(--accent-text);
 }
 
 .topbar-btn {
@@ -84,7 +79,12 @@
   font-size: 14px;
 }
 
-/* 좁은 화면: 메뉴는 숨기고(홈 화면 카드로 이동) 로고와 오른쪽 버튼만 */
+/* 휴대폰용 메뉴 버튼: 넓은 화면에선 숨김 */
+.mnav {
+  display: none;
+}
+
+/* 좁은 화면: 위쪽 메뉴 대신 ☰ 메뉴 버튼으로 */
 @media (max-width: 860px) {
   .topbar {
     padding: 12px 20px;
@@ -93,10 +93,75 @@
   .topbar-nav {
     display: none;
   }
+  .mnav {
+    display: block;
+  }
   .topbar-right {
     margin-left: auto;
   }
-  .topbar-user {
-    display: none;
-  }
+}
+
+/* ---------- 내 메뉴 (닉네임 드롭다운) ---------- */
+.umenu {
+  position: relative; /* 펼쳐지는 목록을 버튼 바로 아래에 붙이기 위해 */
+}
+
+.umenu-btn {
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.umenu-btn:hover {
+  border-color: var(--accent-border);
+}
+
+.umenu-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.umenu-item {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  color: var(--text-h);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.umenu-item:hover {
+  background: var(--accent-bg);
+}
+
+/* 휴대폰 메뉴 목록은 왼쪽 기준으로 펼쳐지면 화면 밖으로 나갈 수 있어서 오른쪽 정렬 유지 + 폭 고정 */
+.mnav-list {
+  min-width: 180px;
+}
+
+.umenu-logout {
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 10px 10px;
+  color: var(--text);
 }

@@ -15,8 +15,12 @@ import "./RoomLobby.css"
 const RoomLobby = ({ title, kind, roomPath, createDesc }) => {
   const navigate = useNavigate()
   const { user } = useAuth()
-  // 전에 쓴 닉네임이 없으면 로그인한 회원 닉네임을 기본값으로 (로그인 안 해도 닉네임만으로 참여 가능)
-  const [nickname, setNickname] = useState(() => getNickname() || user?.nickname || "")
+  // 닉네임 입력칸 값. 비어 있으면(아직 안 건드림) 전에 쓴 닉네임 → 로그인 닉네임을 보여줘요.
+  // 로그인 정보는 페이지가 뜬 "뒤"에 도착할 수 있어서, 처음 값으로 고정하지 않고 매번 계산해요.
+  // (typed가 null = 사용자가 아직 입력칸을 건드리지 않음)
+  const [typed, setTyped] = useState(null)
+  const nickname = typed ?? (getNickname() || user?.nickname || "")
+  const setNickname = setTyped
   const [code, setCode] = useState("")
   const [isCreating, setIsCreating] = useState(false)
   const [error, setError] = useState("")

@@ -22,6 +22,9 @@
   --danger: #d64545; /* 오타, 에러 */
   --danger-bg: rgba(214, 69, 69, 0.14);
   --shadow: rgba(80, 55, 20, 0.12) 0 10px 24px -6px, rgba(80, 55, 20, 0.06) 0 4px 8px -2px;
+  /* 그래프 선 색. 바탕 대비 3:1 이상 + 회색처럼 보이지 않는 채도를 검사기로 확인한 값이에요.
+     (--accent 노랑은 밝은 바탕에서 너무 흐려서 선으로 쓰면 잘 안 보여요) */
+  --chart-line: #a26b00;
 
   --sans: 'Noto Sans KR', system-ui, 'Segoe UI', sans-serif;
   --serif: 'Gowun Batang', 'Noto Serif KR', serif;
@@ -63,6 +66,7 @@
   --danger: #e07a7a;
   --danger-bg: rgba(224, 122, 122, 0.15);
   --shadow: rgba(0, 0, 0, 0.45) 0 10px 24px -6px, rgba(0, 0, 0, 0.3) 0 4px 8px -2px;
+  --chart-line: #b38a45;
   color-scheme: dark; /* 스크롤바, 기본 입력칸 등도 어둡게 */
 }
 
@@ -82,6 +86,7 @@
     --danger: #e07a7a;
     --danger-bg: rgba(224, 122, 122, 0.15);
     --shadow: rgba(0, 0, 0, 0.45) 0 10px 24px -6px, rgba(0, 0, 0, 0.3) 0 4px 8px -2px;
+    --chart-line: #b38a45;
     color-scheme: dark;
   }
 }
@@ -106,6 +111,9 @@
 body {
   margin: 0;
   background: var(--bg);
+  /* 한글이 단어 중간에서 줄바꿈되지 않게 ("확 / 인해요" 방지) */
+  word-break: keep-all;
+  overflow-wrap: break-word; /* 대신 너무 긴 영어/링크는 넘치지 않게 잘라줘요 */
   /* 테마를 바꿀 때 색이 부드럽게 바뀌도록 */
   transition: background-color 0.2s, color 0.2s;
 }
@@ -216,6 +224,7 @@ a {
   font: inherit;
   font-size: 16px;
   text-decoration: none;
+  white-space: nowrap; /* 버튼 글자가 "삭 / 제"처럼 두 줄로 깨지지 않게 */
   cursor: pointer;
 }
 

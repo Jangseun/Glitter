@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react"
 import { Link, useParams } from "react-router-dom"
+import MyPromptsSelect from "../components/MyPromptsSelect"
 import PromptCard from "../components/PromptCard"
 import PromptPicker from "../components/PromptPicker"
 import { RoomGate, RoomInvite, RoomShell } from "../components/RoomFrame"
 import { useAuth } from "../context/AuthContext"
+import { useRoomNickname } from "../hooks/useRoomNickname"
 import { useRoomSocket } from "../hooks/useRoomSocket"
 import { createWork } from "../services/worksApi"
-import { getNickname, saveNickname } from "../utils/nickname"
 import "./WritingRelay.css"
 
 // 백엔드(services/rooms.py의 RELAY_*)와 같은 값이어야 해요.
@@ -29,19 +30,16 @@ const MAX_TEXT = 1000
 // 차례를 넘기고 시간을 재는 건 서버가 하고, 프론트는 받은 상태를 그리기만 해요.
 const WritingRelayRoom = () => {
   const { roomId } = useParams()
-  const [nickname, setNickname] = useState(getNickname)
+  // 닉네임: 전에 쓴 닉네임 → 로그인 닉네임 → 둘 다 없으면 입력 화면 (hooks/useRoomNickname.js)
+  const { nickname, checking, choose } = useRoomNickname()
   const socket = useRoomSocket(roomId, nickname)
-
-  const handleNickname = (value) => {
-    saveNickname(value)
-    setNickname(value)
-  }
 
   return (
     <RoomGate
       roomId={roomId}
       nickname={nickname}
-      onNickname={handleNickname}
+      checkingAuth={checking}
+      onNickname={choose}
       socket={socket}
       backTo="/writing/relay"
       title="친구와 이어쓰기"
@@ -142,6 +140,7 @@ const RelayWaiting = ({ room, playerId, isHost, send }) => {
             <>
               {/* 방장 화면에서 뽑은 소재를 서버로 보내면, 모두의 화면에 같은 소재가 보여요 */}
               <PromptPicker value={settings.prompt} onChange={(prompt) => updateSetting("prompt", prompt)} />
+              <MyPromptsSelect onSelect={(prompt) => updateSetting("prompt", prompt)} />
               {settings.prompt && (
                 <button type="button" className="btn wr-prompt-clear" onClick={() => updateSetting("prompt", null)}>
                   소재 없이 하기

@@ -35,7 +35,7 @@
   font-size: 15px;
   line-height: 1.7;
   color: var(--text);
-  white-space: pre-line;
+  white-space: normal; /* 미리보기는 줄바꿈 없이 이어서 → "…"가 혼자 다음 줄로 가지 않게 */
   /* 3줄 넘어가면 "…"으로 자르기 */
   display: -webkit-box;
   -webkit-line-clamp: 3;

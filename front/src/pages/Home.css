@@ -1,10 +1,17 @@
 .home {
-  padding: 80px 48px;
+  padding: 64px 48px 80px;
+  text-align: left;
+}
+
+/* ---------- 맨 위 소개 ---------- */
+.home-hero {
+  padding: 24px 0 48px;
+  text-align: center;
 }
 
 .home-logo {
   margin: 0;
-  font-size: 64px;
+  font-size: 72px;
   letter-spacing: -2px;
   color: var(--accent-text);
 }
@@ -15,23 +22,46 @@
   color: var(--text);
 }
 
+.home-cta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+/* ---------- 묶음 ---------- */
+.home-section {
+  margin-top: 40px;
+}
+
+.home-section-title {
+  margin-bottom: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
 .home-menu {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  /* 묶음 안의 카드 수(2개/3개)에 맞춰 한 줄을 꽉 채워요 */
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   gap: 16px;
-  margin-top: 64px;
-  text-align: left;
 }
 
 .home-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 28px 24px;
+  padding: 26px 24px;
   border: 1px solid var(--border);
   border-radius: 16px;
+  background: var(--surface);
   color: var(--text);
   font-size: 15px;
+  line-height: 1.6;
   text-decoration: none;
   transition: border-color 0.15s, transform 0.15s;
 }
@@ -42,21 +72,41 @@
 }
 
 .home-card strong {
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 600;
   color: var(--text-h);
 }
 
-.home-group {
-  font-size: 13px;
+/* 오른쪽 위 화살표: 마우스를 올리면 살짝 오른쪽으로 */
+.home-arrow {
+  position: absolute;
+  top: 26px;
+  right: 24px;
+  font-size: 18px;
+  color: var(--text);
+  transition: transform 0.15s, color 0.15s;
+}
+
+.home-card:hover .home-arrow {
+  transform: translateX(3px);
   color: var(--accent-text);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 720px) {
   .home {
-    padding: 48px 20px;
+    padding: 32px 20px 56px;
+  }
+  .home-hero {
+    padding: 16px 0 24px;
   }
   .home-logo {
-    font-size: 48px;
+    font-size: 52px;
+  }
+  .home-sub {
+    margin-top: 16px;
+  }
+  /* 좁은 화면에선 카드를 세로로 하나씩 */
+  .home-menu {
+    grid-auto-flow: row;
   }
 }

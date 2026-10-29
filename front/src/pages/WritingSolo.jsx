@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import MyPromptsSelect from "../components/MyPromptsSelect"
 import PromptCard from "../components/PromptCard"
 import PromptPicker from "../components/PromptPicker"
 import { isEmptyPrompt } from "../data/storyPrompts"
@@ -36,15 +37,20 @@ const WritingSolo = () => {
   // 첫 렌더링 때 한 번만 임시 저장본을 읽어와요. (함수를 넘기면 첫 렌더링에만 실행됨)
   const [initialDraft] = useState(loadDraft)
 
+  // 소재함 페이지에서 "이 소재로 쓰기"를 눌러서 왔으면, 그 소재가 navigate의 state로 같이 와요.
+  const location = useLocation()
+  const promptFromBox = location.state?.prompt ?? null
+
   // 화면 단계:
   // "start" → 자유롭게 쓸지 / 랜덤 소재로 쓸지 고르는 첫 화면
   // "pick"  → 랜덤 소재 뽑는 화면
   // "write" → 실제로 글 쓰는 화면
-  // 임시 저장본이 있으면 바로 "write"로 시작해서 이어 쓸 수 있게 해요.
-  const [step, setStep] = useState(initialDraft ? "write" : "start")
+  // 소재함에서 왔으면 → 그 소재를 띄운 "pick" 화면 (확인하고 바로 쓰기 시작)
+  // 임시 저장본이 있으면 → 바로 "write"로 시작해서 이어 쓸 수 있게 해요.
+  const [step, setStep] = useState(promptFromBox ? "pick" : initialDraft ? "write" : "start")
 
   // 뽑은 소재 { genre: "추리", ... }. 자유 주제면 null
-  const [prompt, setPrompt] = useState(initialDraft?.prompt ?? null)
+  const [prompt, setPrompt] = useState(promptFromBox ?? initialDraft?.prompt ?? null)
   const [title, setTitle] = useState(initialDraft?.title ?? "")
   const [body, setBody] = useState(initialDraft?.body ?? "")
 
@@ -140,6 +146,10 @@ const WritingSolo = () => {
       {step === "pick" && (
         <div className="ws-pick">
           <PromptPicker value={prompt} onChange={setPrompt} />
+          {/* 로그인했으면 저장해둔 소재에서 고를 수도 있어요 */}
+          <div className="ws-mybox">
+            <MyPromptsSelect onSelect={setPrompt} />
+          </div>
           <div className="ws-actions">
             <button type="button" className="btn" onClick={() => setStep("start")}>
               뒤로

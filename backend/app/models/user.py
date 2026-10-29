@@ -37,4 +37,8 @@ class User(Base):
     #   work.user       → 이 작품을 쓴 회원
     # back_populates로 양쪽을 짝지어 두면, 한쪽을 바꿨을 때 다른 쪽도 맞춰져요.
     # 실제 연결 정보는 works 테이블의 user_id 컬럼(외래 키)에 저장돼요.
-    works: Mapped[list["Work"]] = relationship(back_populates="user")
+    #
+    # passive_deletes=True: 회원을 지울 때 SQLAlchemy가 작품들을 직접 건드리지 말고 DB에 맡기라는 뜻이에요.
+    # 이게 없으면 SQLAlchemy가 "작품의 user_id를 NULL로 바꾸기"를 먼저 해버려서,
+    # works 테이블의 ondelete="CASCADE"(같이 삭제)가 동작하지 않고 주인 없는 작품이 남아요.
+    works: Mapped[list["Work"]] = relationship(back_populates="user", passive_deletes=True)

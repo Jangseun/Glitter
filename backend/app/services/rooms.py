@@ -38,7 +38,9 @@ RELAY_TURN_SECONDS = (0, 60, 90, 120, 180)  # 0 = 제한 없음
 RELAY_MAX_TEXT = 1000  # 한 차례에 쓸 수 있는 최대 글자 수
 TURN_GRACE_SECONDS = 5  # 시간 초과 후 서버가 강제로 차례를 넘기기까지 더 기다려주는 시간
 
-# 아무도 들어오지 않은 채 이 시간(초)이 지난 방은 정리해요. (방만 만들고 안 들어간 경우)
+# 아무도 없는 채로 이 시간(초)이 지난 방은 정리해요.
+# 사람이 다 나가자마자 지우면, 혼자 있던 방장이 새로고침만 해도 방이 사라져서 초대 링크가 죽어버려요.
+# 그래서 빈 방도 잠시 남겨두고, 오래 비어 있을 때만 지워요.
 EMPTY_ROOM_TTL_SECONDS = 10 * 60
 
 
@@ -85,7 +87,8 @@ class Room:
         self.players: dict[str, Player] = {}
         self.host_id: str | None = None
         self.status = "waiting"
-        self.created_at = time.time()
+        # 방이 비게 된 시각. 사람이 있으면 None. (만들어진 직후엔 아무도 없으니 지금 시각)
+        self.empty_since: float | None = time.time()
 
     # ---------- 입장/퇴장 ----------
 
@@ -103,6 +106,7 @@ class Room:
         # 첫 번째로 들어온 사람이 방장
         if self.host_id is None:
             self.host_id = player.id
+        self.empty_since = None
         return player
 
     def remove_player(self, player_id: str) -> None:
@@ -111,6 +115,17 @@ class Room:
         if self.host_id == player_id:
             self.host_id = next(iter(self.players), None)
         self.on_player_left(player_id)
+
+        if self.is_empty:
+            # 모두 나갔으면: 돌던 타이머를 멈추고 게임을 "대기 중"으로 되돌려요.
+            # (게임 중에 다 나갔는데 그대로 두면, 다시 들어오려 할 때 "게임 진행 중"이라 못 들어와요)
+            self.empty_since = time.time()
+            self.close()
+            self.reset_game()
+
+    def reset_game(self) -> None:
+        """게임 진행 상태를 처음(대기 중)으로. 하위 클래스에서 게임별 상태도 같이 초기화해요."""
+        self.status = "waiting"
 
     def on_player_left(self, player_id: str) -> None:
         """누군가 나갔을 때 게임별로 할 일 (하위 클래스에서 필요하면 덮어씀)"""
@@ -312,6 +327,10 @@ class TypingRoom(Room):
         """방이 사라질 때 진행 중인 카운트다운 작업도 같이 정리"""
         _cancel(self._countdown_task)
 
+    def reset_game(self) -> None:
+        super().reset_game()
+        self.finished_count = 0
+
 
 class RelayRoom(Room):
     """친구와 공동 이어쓰기 방.
@@ -506,6 +525,14 @@ class RelayRoom(Room):
     def close(self) -> None:
         _cancel(self._turn_task)
 
+    def reset_game(self) -> None:
+        super().reset_game()
+        self.story = []
+        self.order = []
+        self.turns_done = 0
+        self.total_turns = 0
+        self.turn_deadline = None
+
 
 def _cancel(task: asyncio.Task | None) -> None:
     """돌고 있는 비동기 작업(타이머)이 있으면 취소해요."""
@@ -554,10 +581,10 @@ class RoomManager:
             room.close()
 
     def _cleanup_stale_rooms(self) -> None:
-        """만들어만 두고 아무도 안 들어간 채 오래된 방 정리"""
+        """오래 비어 있는 방 정리 (새 방을 만들 때마다 한 번씩 훑어요)"""
         now = time.time()
         for room_id, room in list(self.rooms.items()):
-            if room.is_empty and now - room.created_at > EMPTY_ROOM_TTL_SECONDS:
+            if room.empty_since is not None and now - room.empty_since > EMPTY_ROOM_TTL_SECONDS:
                 self.remove(room_id)
 
 

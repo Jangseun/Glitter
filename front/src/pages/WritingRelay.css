@@ -54,7 +54,13 @@
   font-size: 0.8em;
 }
 
-.wr-players .wr-settings {
+/* 방장 배지는 이름 옆에 살짝 띄워서 */
+.wr-players .badge {
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.wr-settings {
   display: flex;
   flex-direction: column;
   gap: 24px;

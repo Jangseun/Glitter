@@ -98,9 +98,8 @@ async def room_socket(
         pass
     finally:
         # 예외가 무엇이든 반드시 퇴장 처리. 안 하면 "유령 참가자"가 방에 남아요.
+        # 방이 비어도 바로 지우지 않아요. (services/rooms.py의 EMPTY_ROOM_TTL_SECONDS 주석 참고)
         room.remove_player(player.id)
-        if room.is_empty:
-            room_manager.remove(room.id)
-        else:
+        if not room.is_empty:
             await room.broadcast_state()
 

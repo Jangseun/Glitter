@@ -27,11 +27,14 @@ export const RoomShell = ({ backTo, title, children }) => (
 //   <RoomGate>{() => <p>{socket.room.id}</p>}</RoomGate>
 // 처럼 쓰면, 함수 안의 코드는 RoomGate가 "준비됐다"고 판단해서 호출할 때만 실행돼요.
 // 그냥 JSX로 넘기면 room이 아직 null일 때도 socket.room.id를 읽다가 에러가 나요.
-export const RoomGate = ({ roomId, nickname, onNickname, socket, backTo, title, children }) => {
+// checkingAuth: 로그인 정보 확인 중이면 true → 닉네임 입력창 대신 "확인 중"을 보여줘요 (깜빡임 방지)
+export const RoomGate = ({ roomId, nickname, checkingAuth, onNickname, socket, backTo, title, children }) => {
   const { connection, room, playerId, fatalError } = socket
 
   let screen = null
-  if (!nickname) {
+  if (checkingAuth) {
+    screen = <p className="empty">확인 중…</p>
+  } else if (!nickname) {
     // 초대 링크로 처음 들어온 친구는 닉네임부터 정해요.
     screen = (
       <div className="empty">

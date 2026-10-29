@@ -69,7 +69,12 @@ export const AuthProvider = ({ children }) => {
     setUser(null)
   }
 
-  return <AuthContext.Provider value={{ user, checking, login, signup, logout }}>{children}</AuthContext.Provider>
+  // 닉네임을 바꾼 뒤 상단 바 등에 바로 반영하려고, 서버가 돌려준 새 회원 정보로 갈아끼우는 함수
+  const updateUser = (me) => setUser(me)
+
+  return (
+    <AuthContext.Provider value={{ user, checking, login, signup, logout, updateUser }}>{children}</AuthContext.Provider>
+  )
 }
 
 // Provider와 짝이 되는 hook이라 같은 파일에 둬요.

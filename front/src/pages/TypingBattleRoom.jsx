@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
 import { RoomGate, RoomInvite, RoomShell } from "../components/RoomFrame"
 import TypingBoard from "../components/TypingBoard"
+import { useRoomNickname } from "../hooks/useRoomNickname"
 import { useRoomSocket } from "../hooks/useRoomSocket"
+import { useAuth } from "../context/AuthContext"
 import { useTypingSession } from "../hooks/useTypingSession"
+import { saveRecord } from "../services/recordsApi"
 import { randomText, toTypingText } from "../services/textsApi"
-import { getNickname, saveNickname } from "../utils/nickname"
 import "./TypingBattle.css"
 
 // 친구와 타자 대결 - 방 화면 (/typing/battle/:roomId)
@@ -20,20 +22,16 @@ import "./TypingBattle.css"
 const TypingBattleRoom = () => {
   const { roomId } = useParams()
 
-  // 닉네임이 없으면(초대 링크로 처음 들어온 친구) 입력 화면을 먼저 보여주고, 입력하면 접속해요.
-  const [nickname, setNickname] = useState(getNickname)
+  // 닉네임: 전에 쓴 닉네임 → 로그인 닉네임 → 둘 다 없으면 입력 화면 (hooks/useRoomNickname.js)
+  const { nickname, checking, choose } = useRoomNickname()
   const socket = useRoomSocket(roomId, nickname)
-
-  const handleNickname = (value) => {
-    saveNickname(value)
-    setNickname(value)
-  }
 
   return (
     <RoomGate
       roomId={roomId}
       nickname={nickname}
-      onNickname={handleNickname}
+      checkingAuth={checking}
+      onNickname={choose}
       socket={socket}
       backTo="/typing/battle"
       title="친구와 타자 대결"
@@ -64,6 +62,8 @@ const BattleRoom = ({ room, playerId, notice, send }) => {
           <BattlePlay
             key={room.round}
             text={room.sentence.text}
+            // 서버는 글 번호를 문자열로 보관해서 숫자로 바꿔 넘겨요 (기록에 "어떤 글"인지 남기려고)
+            sentenceId={Number(room.sentence.id) || null}
             status={room.status}
             countdownSeconds={room.countdownSeconds}
             me={room.players.find((p) => p.id === playerId)}
@@ -171,7 +171,7 @@ const PlayerLanes = ({ players, playerId }) => (
 
 // ---------- 타자 치는 영역 ----------
 // room.round가 바뀔 때마다 새로 만들어져요. (위의 key={room.round} 주석 참고)
-const BattlePlay = ({ text, status, countdownSeconds, me, send }) => {
+const BattlePlay = ({ text, sentenceId, status, countdownSeconds, me, send }) => {
   const isPlaying = status === "playing"
 
   // 혼자 연습과 똑같은 입력 로직을 그대로 써요. 카운트다운 중에는 disabled로 입력을 막아요.
@@ -188,6 +188,7 @@ const BattlePlay = ({ text, status, countdownSeconds, me, send }) => {
 
   // 다 치면 최종 기록을 딱 한 번 보내요.
   // stats는 렌더링마다 새 객체라 이 effect가 여러 번 실행될 수 있어서, ref로 "이미 보냈음"을 기억해요.
+  const { user } = useAuth()
   const finishSentRef = useRef(false)
   useEffect(() => {
     if (!isFinished || finishSentRef.current) return
@@ -196,7 +197,13 @@ const BattlePlay = ({ text, status, countdownSeconds, me, send }) => {
       type: "finish",
       result: { speed: stats.speed, accuracy: stats.accuracy, typoCount: stats.typoCount, seconds: stats.seconds },
     })
-  }, [isFinished, stats, send])
+    // 로그인했으면 내 타자 기록에도 남겨요 ("대결" 기록으로). 실패해도 대결 진행엔 지장 없게 조용히
+    if (user) {
+      saveRecord({ mode: "battle", textId: sentenceId, stats, charCount: text.length }).catch((err) =>
+        console.error("기록 저장 실패", err),
+      )
+    }
+  }, [isFinished, stats, send, user, sentenceId, text])
 
   return (
     <div className="tbr-play">

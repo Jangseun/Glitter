@@ -90,3 +90,14 @@
     transform: none;
   }
 }
+
+.picker-save {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.picker-save-error {
+  font-size: 14px;
+  color: var(--danger);
+}

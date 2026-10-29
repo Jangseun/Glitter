@@ -1,3 +1,5 @@
 # 실수로 루트에서 npm install 했을 때 생기는 파일이 올라가지 않도록
 node_modules/
 .DS_Store
+/package.json
+/package-lock.json

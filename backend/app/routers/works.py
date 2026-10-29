@@ -7,6 +7,8 @@ PATCH  /api/works/{work_id}  작품 수정 (보낸 필드만)
 DELETE /api/works/{work_id}  작품 삭제
 """
 
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
@@ -66,6 +68,9 @@ def update_work(work_id: str, data: WorkUpdate, db: DbSession, user: CurrentUser
     # exclude_none=True: 값이 None인 필드(=안 보낸 필드)는 빼고 dict로 만들어요.
     # 예) {"title": "새 제목"}만 보냈으면 → {"title": "새 제목"}
     changes = data.model_dump(exclude_none=True)
+    # 비공개 → 공개로 바꾸는 순간을 기록해요. (커뮤니티에서 "방금 공개된 글"이 맨 위로 오게)
+    if changes.get("is_public") and not work.is_public:
+        work.published_at = datetime.now(UTC)
     for field, value in changes.items():
         setattr(work, field, value)  # work.title = "새 제목" 과 같은 뜻
 

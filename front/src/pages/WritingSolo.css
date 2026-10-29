@@ -42,6 +42,10 @@
   max-width: 640px;
 }
 
+.ws-mybox {
+  margin-top: 20px;
+}
+
 .ws-actions {
   display: flex;
   gap: 12px;

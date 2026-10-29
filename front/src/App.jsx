@@ -2,7 +2,10 @@ import { Route, Routes } from 'react-router-dom';
 import RequireAuth from './components/RequireAuth';
 import TopBar from './components/TopBar';
 import AuthPage from './pages/AuthPage';
+import Community from './pages/Community';
+import CommunityWork from './pages/CommunityWork';
 import Home from './pages/Home';
+import Prompts from './pages/Prompts';
 import Settings from './pages/Settings';
 import TextNew from './pages/TextNew';
 import TypingBattleLobby from './pages/TypingBattleLobby';
@@ -37,6 +40,13 @@ function App() {
         <Route path="/writing/solo" element={<WritingSolo />} />
         <Route path="/writing/relay" element={<WritingRelayLobby />} />
         <Route path="/writing/room/:roomId" element={<WritingRelayRoom />} />
+
+        {/* 개인 소재함: 로그인한 사람만 */}
+        <Route path="/prompts" element={<RequireAuth><Prompts /></RequireAuth>} />
+
+        {/* 커뮤니티: 읽기는 누구나, 좋아요/댓글은 로그인 필요 (페이지 안에서 처리) */}
+        <Route path="/community" element={<Community />} />
+        <Route path="/community/:workId" element={<CommunityWork />} />
 
         {/* 작품함: 로그인한 사람만, 자기 작품만 */}
         <Route path="/works" element={<RequireAuth><Works /></RequireAuth>} />

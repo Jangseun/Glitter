@@ -4,7 +4,9 @@ import TextPicker from "../components/TextPicker"
 import TypingBoard from "../components/TypingBoard"
 import TypingResult from "../components/TypingResult"
 import { CATEGORY_LABEL } from "../data/textCategories"
+import { useAuth } from "../context/AuthContext"
 import { useTypingSession } from "../hooks/useTypingSession"
+import { saveRecord } from "../services/recordsApi"
 import { randomText, textSource } from "../services/textsApi"
 import BackButton from "../components/BackButton"
 import "./TypingSolo.css"
@@ -83,6 +85,26 @@ const TypingPractice = ({ text, onNext }) => {
 
   const restart = () => session.reset()
 
+  // ---- 기록 저장 ----
+  // 로그인한 상태로 한 판을 끝내면 서버에 기록을 남겨요. (설정 > 프로필의 성장 그래프에 쌓여요)
+  // endTime을 의존성으로 둬서 "완료된 순간" 한 번만 실행돼요. 다시하기(reset)하면 endTime이 null로 돌아갔다가
+  // 다시 다 치면 새 endTime이 생겨서 또 한 번 저장돼요.
+  const { user } = useAuth()
+  const [recordSaved, setRecordSaved] = useState(false)
+  useEffect(() => {
+    if (endTime === null || !user) return
+    let ignore = false
+    saveRecord({ mode: "solo", textId: text.id, category: text.category, stats, charCount: content.length })
+      .then(() => !ignore && setRecordSaved(true))
+      .catch((err) => console.error("기록 저장 실패", err)) // 기록 저장이 실패해도 연습 자체엔 지장 없게 조용히
+    return () => {
+      ignore = true
+      setRecordSaved(false)
+    }
+    // stats/text는 완료 순간의 값만 필요해서 의존성에서 뺐어요. (매 렌더링마다 다시 저장되면 안 되니까)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endTime, user])
+
   // 단축키 리스너에서 쓸 "최신" restart/onNext 함수를 담아두는 ref.
   // 함수들은 렌더링마다 새로 만들어져서, 리스너가 등록될 때의 함수를 그대로 쓰면 옛날 값을 기준으로
   // 동작할 수 있어요. 그래서 매 렌더링 후 ref에 최신 함수를 넣어두고, 리스너는 실행 순간 꺼내 써요.
@@ -147,7 +169,12 @@ const TypingPractice = ({ text, onNext }) => {
       </p>
 
       {isFinished ? (
-        <TypingResult stats={stats} onRestart={restart} onNext={onNext} />
+        <TypingResult
+          stats={stats}
+          onRestart={restart}
+          onNext={onNext}
+          note={user ? (recordSaved ? "기록을 저장했어요 · 설정 > 프로필에서 성장 그래프를 볼 수 있어요" : "") : "로그인하면 기록이 저장돼요"}
+        />
       ) : (
         <div className="ts-footer">
           <span>

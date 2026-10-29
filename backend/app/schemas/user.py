@@ -28,6 +28,23 @@ class UserRead(CamelModel):
     nickname: str
 
 
+class ProfileUpdate(CamelModel):
+    """닉네임 변경"""
+
+    nickname: str = Field(min_length=1, max_length=12)
+
+
+class PasswordChange(CamelModel):
+    current_password: str
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+class AccountDelete(CamelModel):
+    """탈퇴할 때 실수 방지용으로 비밀번호를 한 번 더 받아요."""
+
+    password: str
+
+
 class AuthResponse(CamelModel):
     """로그인/회원가입 성공 응답 → { "accessToken": "...", "user": {...} }"""
 

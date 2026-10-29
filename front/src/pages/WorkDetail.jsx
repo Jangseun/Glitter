@@ -105,6 +105,22 @@ const WorkDetail = () => {
     }
   }
 
+  // ---- 커뮤니티 공개/비공개 전환 ----
+  const [isToggling, setIsToggling] = useState(false)
+  const togglePublic = async () => {
+    const makePublic = !work.isPublic
+    if (makePublic && !window.confirm("커뮤니티에 공개할까요? 누구나 읽고 좋아요와 댓글을 남길 수 있어요.")) return
+    setIsToggling(true)
+    try {
+      setWork(await updateWork(workId, { isPublic: makePublic }))
+    } catch (err) {
+      console.error(err)
+      setEditError("공개 설정을 바꾸지 못했어요.")
+    } finally {
+      setIsToggling(false)
+    }
+  }
+
   return (
     <div className="page">
       <header className="page-header">
@@ -142,8 +158,9 @@ const WorkDetail = () => {
 
           <div className="wd-meta">
             <span>{MODE_LABELS[work.mode] ?? work.mode}</span>
-            {/* 아직 로그인 기능이 없어서 작성자가 비어있으면 "나"로 보여줘요 */}
+            {/* 이어쓰기 작품이면 함께 쓴 사람들, 혼자 쓴 작품이면 "나" */}
             <span>{work.authors?.length ? work.authors.join(", ") : "나"}</span>
+            <span className={`badge${work.isPublic ? " ready" : ""}`}>{work.isPublic ? "🌐 공개" : "🔒 비공개"}</span>
             <span>{formatDate(work.createdAt)}</span>
             {work.updatedAt && <span>{formatDate(work.updatedAt)} 수정</span>}
           </div>
@@ -175,6 +192,16 @@ const WorkDetail = () => {
               </>
             ) : (
               <>
+                {editError && <span className="wd-error">{editError}</span>}
+                {/* 공개 중이면 커뮤니티에서 어떻게 보이는지(좋아요, 댓글 포함) 바로 가볼 수 있게 */}
+                {work.isPublic && (
+                  <Link to={`/community/${work.id}`} className="btn">
+                    커뮤니티에서 보기
+                  </Link>
+                )}
+                <button type="button" className="btn" onClick={togglePublic} disabled={isToggling}>
+                  {work.isPublic ? "비공개로 바꾸기" : "커뮤니티에 공개"}
+                </button>
                 <button type="button" className="btn" onClick={handleDelete}>
                   삭제
                 </button>

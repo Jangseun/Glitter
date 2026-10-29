@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import JSON, DateTime, ForeignKey, String, Text, func
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, String, Text, false, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -46,6 +46,12 @@ class Work(Base):
     # timezone=True: 시간대 정보까지 저장 → 프론트에서 한국 시간으로 정확히 변환돼요.
     # index=True: 최신순 정렬(ORDER BY created_at)을 자주 하니까 인덱스를 걸어둬요.
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+    # 커뮤니티 공개 여부. 기본은 비공개(나만 보기)
+    # server_default=false(): DB에 기본값을 직접 걸어서, 이 컬럼이 생기기 전에 있던 작품들도 "비공개"로 채워져요.
+    is_public: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    # 마지막으로 "공개"로 바꾼 시각. 커뮤니티 최신순 정렬에 써요. (한 번도 공개한 적 없으면 None)
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
 
     # 마지막으로 수정한 시각. 한 번도 수정 안 했으면 None(NULL)
     # onupdate=func.now(): 이 행을 UPDATE할 때마다 SQLAlchemy가 자동으로 "지금 시각"을 같이 넣어줘요.

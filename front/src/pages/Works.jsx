@@ -60,6 +60,7 @@ const Works = () => {
                 <p className="work-excerpt">{work.body}</p>
                 <div className="work-meta">
                   <span>{MODE_LABELS[work.mode] ?? work.mode}</span>
+                  {work.isPublic && <span>🌐 공개</span>}
                   {work.prompt?.genre && <span>{work.prompt.genre}</span>}
                   <span>{formatDate(work.createdAt)}</span>
                 </div>
