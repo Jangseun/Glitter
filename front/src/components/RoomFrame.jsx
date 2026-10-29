@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import NicknameForm from "./NicknameForm"
 import BackButton from "./BackButton"
@@ -79,19 +79,16 @@ export const RoomGate = ({ roomId, nickname, checkingAuth, onNickname, socket, b
 
 // 방 코드 + 초대 링크 복사
 export const RoomInvite = ({ roomId }) => {
-  const [copied, setCopied] = useState(false)
+  // "idle" = 평소, "done" = 복사됨, "fail" = 복사 실패 (직접 복사하라고 안내)
+  const [copyState, setCopyState] = useState("idle")
+  const linkRef = useRef(null)
   const inviteUrl = window.location.href
 
   const copyInvite = async () => {
-    try {
-      // 클립보드 API는 https나 localhost에서만 동작해요.
-      // 다른 PC에서 192.168.x.x 같은 주소로 접속한 경우엔 실패할 수 있어서, 아래에 링크 글자도 보여줘요.
-      await navigator.clipboard.writeText(inviteUrl)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      setCopied(false)
-    }
+    const ok = (await copyWithClipboardApi(inviteUrl)) || copyWithExecCommand(inviteUrl)
+    if (!ok) selectText(linkRef.current) // 실패하면 링크 글자를 선택해둬서 Ctrl+C / 길게 눌러 복사만 하면 되게
+    setCopyState(ok ? "done" : "fail")
+    setTimeout(() => setCopyState("idle"), ok ? 2000 : 4000)
   }
 
   return (
@@ -102,10 +99,53 @@ export const RoomInvite = ({ roomId }) => {
       </div>
       <div className="invite-link">
         <button type="button" className="btn" onClick={copyInvite}>
-          {copied ? "복사됐어요!" : "초대 링크 복사"}
+          {copyState === "done" ? "복사됐어요!" : copyState === "fail" ? "직접 복사해주세요" : "초대 링크 복사"}
         </button>
-        <span>{inviteUrl}</span>
+        <span ref={linkRef}>{inviteUrl}</span>
       </div>
     </section>
   )
+}
+
+// ---- 복사 도우미 ----
+// 1순위: 최신 클립보드 API. 단, https(또는 localhost)에서만 있고,
+//        카카오톡/인스타 같은 앱 안 브라우저나 일부 휴대폰 브라우저에선 막혀 있을 때가 많아요.
+const copyWithClipboardApi = async (text) => {
+  try {
+    if (!navigator.clipboard?.writeText) return false
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch {
+    return false
+  }
+}
+
+// 2순위: 옛날 방식. 안 보이는 textarea에 글을 넣고 선택한 뒤 "복사" 명령을 실행해요.
+// execCommand는 표준에서 "더 이상 권장 안 함"이지만, 1순위가 막힌 브라우저에서도 대부분 동작해서 대체용으로 써요.
+const copyWithExecCommand = (text) => {
+  const textarea = document.createElement("textarea")
+  textarea.value = text
+  textarea.setAttribute("readonly", "") // 휴대폰에서 키보드가 튀어나오지 않게
+  textarea.style.position = "fixed"
+  textarea.style.opacity = "0"
+  document.body.appendChild(textarea)
+  textarea.select()
+  let ok = false
+  try {
+    ok = document.execCommand("copy")
+  } catch {
+    ok = false
+  }
+  textarea.remove()
+  return ok
+}
+
+// 요소 안의 글자를 드래그한 것처럼 선택해요.
+const selectText = (el) => {
+  if (!el) return
+  const range = document.createRange()
+  range.selectNodeContents(el)
+  const selection = window.getSelection()
+  selection.removeAllRanges()
+  selection.addRange(range)
 }
