@@ -231,6 +231,11 @@
   margin-top: 12px;
 }
 
+.wr-editor-btns {
+  display: flex;
+  gap: 8px;
+}
+
 /* 다른 사람 차례: "OO님이 이어 쓰는 중…" */
 .wr-waiting-turn {
   padding: 28px;

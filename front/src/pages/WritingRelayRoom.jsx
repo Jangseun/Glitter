@@ -11,7 +11,9 @@ import { createWork } from "../services/worksApi"
 import "./WritingRelay.css"
 
 // 백엔드(services/rooms.py의 RELAY_*)와 같은 값이어야 해요.
-const LAP_OPTIONS = [1, 2, 3, 4, 5]
+// 0 = "바퀴 수 없음": 정해진 차례 없이 돌다가, 쓰는 사람이 "완결"을 눌러야 끝나요.
+const LAP_OPTIONS = [0, 1, 2, 3, 4, 5]
+const lapLabel = (n) => (n === 0 ? "완결할 때까지" : `${n}바퀴`)
 const TURN_SECONDS_OPTIONS = [
   { value: 0, label: "제한 없음" },
   { value: 60, label: "1분" },
@@ -25,7 +27,7 @@ const MAX_TEXT = 1000
 //
 // 화면은 서버가 보내주는 room.status에 따라 바뀌어요.
 //   waiting  → 대기실 (방 코드, 참가자, 규칙 설정)
-//   writing  → 한 사람씩 돌아가며 쓰기 (내 차례면 입력칸, 아니면 "OO님이 쓰는 중…")
+//   writing  → 한 사람씩 돌아가며 쓰기 (내 차례면 입력칸 + 넘기기/완결 버튼, 아니면 "OO님이 쓰는 중…")
 //   finished → 완성된 이야기 + 작품으로 저장
 // 차례를 넘기고 시간을 재는 건 서버가 하고, 프론트는 받은 상태를 그리기만 해요.
 const WritingRelayRoom = () => {
@@ -78,6 +80,10 @@ const RelayWaiting = ({ room, playerId, isHost, send }) => {
   const updateSetting = (key, value) => send({ type: "settings", settings: { [key]: value } })
 
   const totalTurns = settings.laps * room.players.length
+  const lapsHint =
+    settings.laps === 0
+      ? "정해진 차례 없이 계속 돌아가요. 자기 차례에 \"완결\"을 누르면 이야기가 끝나요."
+      : `총 ${totalTurns}차례 (${room.players.length}명 × ${settings.laps}바퀴) · 중간에 완결할 수도 있어요`
 
   return (
     <div className="wr-waiting">
@@ -101,10 +107,10 @@ const RelayWaiting = ({ room, playerId, isHost, send }) => {
       <section className="wr-settings">
         <p className="wr-label">규칙 {isHost ? "" : "(방장이 정해요)"}</p>
 
-        <SettingRow label="바퀴 수" hint={`총 ${totalTurns}차례 (${room.players.length}명 × ${settings.laps}바퀴)`}>
+        <SettingRow label="바퀴 수" hint={lapsHint}>
           {LAP_OPTIONS.map((n) => (
             <SegButton key={n} active={settings.laps === n} disabled={!isHost} onClick={() => updateSetting("laps", n)}>
-              {n}바퀴
+              {lapLabel(n)}
             </SegButton>
           ))}
         </SettingRow>
@@ -216,10 +222,19 @@ const RelayWriting = ({ room, playerId, send }) => {
 
   const secondsLeft = deadline === null ? null : Math.max(0, Math.ceil((deadline - now) / 1000))
 
-  const submit = (text) => {
+  // type: "submit" = 다음 사람에게 넘기기, "finish" = 내 글을 마지막으로 이야기 완결
+  const submit = (text, type = "submit") => {
     if (submittedRef.current) return
     submittedRef.current = true
-    send({ type: "submit", text })
+    send({ type, text })
+  }
+
+  // 완결은 되돌릴 수 없어서 한 번 물어봐요.
+  // 이야기가 한 줄도 없으면 완결할 게 없으니 버튼을 막아둬요. (서버도 같은 경우를 거절해요)
+  const canFinish = draft.trim() !== "" || room.story.length > 0
+  const finish = () => {
+    if (!window.confirm("이야기를 여기서 완결할까요? 지금 쓴 글이 마지막 조각이 돼요.")) return
+    submit(draft, "finish")
   }
 
   // 내 차례인데 시간이 다 되면, 지금까지 쓴 만큼 자동으로 제출해요. (빈 글이면 서버가 그냥 차례만 넘겨요)
@@ -243,7 +258,8 @@ const RelayWriting = ({ room, playerId, send }) => {
     <div className="wr-writing">
       <div className="wr-turnbar">
         <span>
-          {room.turnsDone + 1} / {room.totalTurns}번째 차례
+          {/* 바퀴 수 없음 모드(totalTurns = 0)면 전체 차례 수 없이 몇 번째인지만 */}
+          {room.totalTurns ? `${room.turnsDone + 1} / ${room.totalTurns}번째 차례` : `${room.turnsDone + 1}번째 차례 · 완결할 때까지`}
         </span>
         {secondsLeft !== null && (
           <span className={`wr-timer${secondsLeft <= 10 ? " urgent" : ""}`}>{formatSeconds(secondsLeft)}</span>
@@ -283,9 +299,14 @@ const RelayWriting = ({ room, playerId, send }) => {
             <span className="wr-hint">
               {draft.length} / {MAX_TEXT}자 · Ctrl+Enter로 넘기기
             </span>
-            <button type="button" className="btn primary" onClick={() => submit(draft)} disabled={!draft.trim()}>
-              다음 사람에게 넘기기
-            </button>
+            <div className="wr-editor-btns">
+              <button type="button" className="btn" onClick={finish} disabled={!canFinish}>
+                이걸로 완결
+              </button>
+              <button type="button" className="btn primary" onClick={() => submit(draft)} disabled={!draft.trim()}>
+                다음 사람에게 넘기기
+              </button>
+            </div>
           </div>
         </div>
       ) : (

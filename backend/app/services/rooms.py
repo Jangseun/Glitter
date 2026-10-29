@@ -34,6 +34,10 @@ COUNTDOWN_SECONDS = 3
 
 # ---- 공동 이어쓰기 설정 범위 ----
 RELAY_LAPS_MIN, RELAY_LAPS_MAX = 1, 5
+# laps = 0 은 "바퀴 수 없음" 모드: 정해진 차례 없이 돌다가, 누군가 "완결" 버튼을 눌러야 끝나요.
+RELAY_LAPS_UNLIMITED = 0
+# 바퀴 수 없음 모드라도 이야기가 끝없이 길어지면 서버 메모리를 계속 차지하니까, 이만큼 돌면 자동으로 완결해요.
+RELAY_UNLIMITED_MAX_TURNS = 100
 RELAY_TURN_SECONDS = (0, 60, 90, 120, 180)  # 0 = 제한 없음
 RELAY_MAX_TEXT = 1000  # 한 차례에 쓸 수 있는 최대 글자 수
 TURN_GRACE_SECONDS = 5  # 시간 초과 후 서버가 강제로 차례를 넘기기까지 더 기다려주는 시간
@@ -336,7 +340,7 @@ class RelayRoom(Room):
     """친구와 공동 이어쓰기 방.
 
     [상태 흐름]
-    waiting ──(방장이 start)──▶ writing ──(정해진 차례를 다 돌면)──▶ finished
+    waiting ──(방장이 start)──▶ writing ──(정해진 차례를 다 돌거나, 쓰는 사람이 "완결")──▶ finished
        ▲                                                          │
        └──────────────(방장이 reset: 새 이야기)────────────────────┘
 
@@ -344,11 +348,13 @@ class RelayRoom(Room):
     order:        시작할 때 정해진 쓰는 순서 (참가자 id 목록, 들어온 순서)
     writer_index: order 중 지금 쓰는 사람의 위치
     turns_done:   지금까지 끝난 차례 수. total_turns(= 바퀴 수 × 인원)에 닿으면 완성
+                  ("바퀴 수 없음" 모드면 total_turns = 0 → 차례 수로는 끝나지 않고 "완결"을 눌러야 끝나요)
 
     [클라이언트 → 서버 메시지]
     { "type": "settings", "settings": { laps, turnSeconds, visibility, prompt } }  설정 변경 (방장만, 대기 중)
     { "type": "start" }                     시작 (방장만, 2명 이상)
     { "type": "submit", "text": "..." }     내 차례 글 제출 → 다음 사람 차례로
+    { "type": "finish", "text": "..." }     내 차례 글을 마지막으로 이야기 완결 (지금 쓰는 사람만)
     { "type": "reset" }                     새 이야기 (방장만, 완성 후)
     """
 
@@ -358,7 +364,7 @@ class RelayRoom(Room):
         super().__init__(room_id)
         # 방장이 대기실에서 바꿀 수 있는 설정
         self.settings = {
-            "laps": 2,  # 몇 바퀴 돌지
+            "laps": 2,  # 몇 바퀴 돌지 (0 = 바퀴 수 없이 "완결" 누를 때까지)
             "turnSeconds": 90,  # 한 차례 제한 시간 (0 = 제한 없음)
             "visibility": "all",  # "all" = 앞 내용 전부 보기 / "last" = 바로 앞 사람 글만 보기
             "prompt": None,  # 랜덤 소재 { genre: "추리", ... } 또는 None
@@ -414,16 +420,24 @@ class RelayRoom(Room):
                 return
             self._start()
 
-        elif kind == "submit" and player.id == self.current_writer_id:
+        elif kind in ("submit", "finish") and player.id == self.current_writer_id:
             text = message.get("text")
             text = text.strip() if isinstance(text, str) else ""
             if len(text) > RELAY_MAX_TEXT:
                 await self.send(player, {"type": "error", "message": f"한 번에 {RELAY_MAX_TEXT}자까지 쓸 수 있어요."})
                 return
+            # 완결은 이야기가 한 줄이라도 있어야 할 수 있어요. (빈 이야기로 끝나면 저장할 게 없으니까)
+            if kind == "finish" and not text and not self.story:
+                await self.send(player, {"type": "error", "message": "한 줄이라도 쓰고 완결할 수 있어요."})
+                return
             # 빈 글은 이야기에 넣지 않고 차례만 넘겨요. (시간 초과로 아무것도 못 쓴 경우)
             if text:
                 self.story.append({"playerId": player.id, "nickname": player.nickname, "text": text})
-            self._next_turn()
+            if kind == "finish":
+                self.turns_done += 1
+                self._finish()
+            else:
+                self._next_turn()
 
         elif kind == "reset" and is_host and self.status == "finished":
             self.status = "waiting"
@@ -441,7 +455,9 @@ class RelayRoom(Room):
         """방장이 보낸 설정 중 올바른 값만 골라서 반영해요. (이상한 값은 무시)"""
         laps = new.get("laps")
         # bool은 파이썬에서 int의 한 종류라(True == 1) 따로 걸러줘요.
-        if isinstance(laps, int) and not isinstance(laps, bool) and RELAY_LAPS_MIN <= laps <= RELAY_LAPS_MAX:
+        if isinstance(laps, int) and not isinstance(laps, bool) and (
+            RELAY_LAPS_MIN <= laps <= RELAY_LAPS_MAX or laps == RELAY_LAPS_UNLIMITED
+        ):
             self.settings["laps"] = laps
 
         seconds = new.get("turnSeconds")
@@ -465,6 +481,7 @@ class RelayRoom(Room):
         self.order = list(self.players)  # 들어온 순서대로 차례
         self.writer_index = 0
         self.turns_done = 0
+        # 바퀴 수 없음(0)이면 total_turns도 0 → 차례 수로는 끝나지 않아요.
         self.total_turns = self.settings["laps"] * len(self.order)
         self.story = []
         self._begin_turn()
@@ -492,7 +509,10 @@ class RelayRoom(Room):
 
     def _next_turn(self) -> None:
         self.turns_done += 1
-        if self.turns_done >= self.total_turns or not self.order:
+        # 끝나는 경우: 정해진 차례를 다 돌았을 때 / 바퀴 수 없음 모드의 안전 상한 / 남은 사람이 없을 때
+        reached_total = self.total_turns and self.turns_done >= self.total_turns
+        reached_cap = self.turns_done >= RELAY_UNLIMITED_MAX_TURNS
+        if reached_total or reached_cap or not self.order:
             self._finish()
             return
         self.writer_index = (self.writer_index + 1) % len(self.order)
